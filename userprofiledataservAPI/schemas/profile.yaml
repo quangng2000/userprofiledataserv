@@ -1,0 +1,124 @@
+Profile:
+  type: object
+  required:
+    - userId
+    - displayName
+    - createdAt
+    - updatedAt
+  properties:
+    userId:
+      type: string
+      format: uuid
+      description: ID of the user this profile belongs to
+    displayName:
+      type: string
+      description: User's display name
+    avatarUrl:
+      type: string
+      format: uri
+      description: URL to the user's avatar image
+    bio:
+      type: string
+      description: User's biography or description
+    title:
+      type: string
+      description: User's professional title
+    department:
+      type: string
+      description: User's department
+    location:
+      type: string
+      description: User's location
+    timezone:
+      type: string
+      description: User's timezone in IANA format
+    languagePreference:
+      type: string
+      description: User's preferred language (ISO 639-1)
+    createdAt:
+      type: string
+      format: date-time
+      description: Timestamp when the profile was created
+    updatedAt:
+      type: string
+      format: date-time
+      description: Timestamp when the profile was last updated
+
+ProfileUpdate:
+  type: object
+  properties:
+    displayName:
+      type: string
+      description: User's display name
+    avatarUrl:
+      type: string
+      format: uri
+      description: URL to the user's avatar image
+    bio:
+      type: string
+      description: User's biography or description
+    title:
+      type: string
+      description: User's professional title
+    department:
+      type: string
+      description: User's department
+    location:
+      type: string
+      description: User's location
+    timezone:
+      type: string
+      description: User's timezone in IANA format
+    languagePreference:
+      type: string
+      description: User's preferred language (ISO 639-1)
+
+Preferences:
+  type: object
+  required:
+    - userId
+    - createdAt
+    - updatedAt
+  properties:
+    userId:
+      type: string
+      format: uuid
+      description: ID of the user these preferences belong to
+    emailNotifications:
+      type: boolean
+      description: Whether the user wants to receive email notifications
+    pushNotifications:
+      type: boolean
+      description: Whether the user wants to receive push notifications
+    theme:
+      type: string
+      enum: [light, dark, system]
+      description: User's preferred UI theme
+    dashboardLayout:
+      type: object
+      description: User's customized dashboard layout settings
+    createdAt:
+      type: string
+      format: date-time
+      description: Timestamp when the preferences were created
+    updatedAt:
+      type: string
+      format: date-time
+      description: Timestamp when the preferences were last updated
+
+PreferencesUpdate:
+  type: object
+  properties:
+    emailNotifications:
+      type: boolean
+      description: Whether the user wants to receive email notifications
+    pushNotifications:
+      type: boolean
+      description: Whether the user wants to receive push notifications
+    theme:
+      type: string
+      enum: [light, dark, system]
+      description: User's preferred UI theme
+    dashboardLayout:
+      type: object
+      description: User's customized dashboard layout settings

@@ -1,0 +1,115 @@
+@startuml "Multi-Tenant User Identity and Profile API Schema"
+
+' Style and theme settings
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam nodesep 100
+skinparam ranksep 80
+
+' Class definitions
+class Tenant {
+    +id: UUID
+    +name: string
+    +status: enum [active, inactive, suspended, pending]
+    +domain: string
+    +tier: enum [free, basic, professional, enterprise]
+    +settings: object
+    +created_at: datetime
+    +updated_at: datetime
+    +_links: Links
+}
+
+class User {
+    +id: UUID
+    +email: string
+    +username: string
+    +tenant_id: UUID
+    +status: enum [active, inactive, pending, suspended, locked]
+    +email_verified: boolean
+    +phone_number: string
+    +phone_verified: boolean
+    +mfa_enabled: boolean
+    +last_login_at: datetime
+    +created_at: datetime
+    +updated_at: datetime
+    +_links: Links
+}
+
+class Profile {
+    +user_id: UUID
+    +first_name: string
+    +last_name: string
+    +display_name: string
+    +profile_picture: URI
+    +bio: string
+    +location: object
+    +social_links: object
+    +preferences: object
+    +metadata: object
+    +created_at: datetime
+    +updated_at: datetime
+    +_links: Links
+}
+
+class Role {
+    +id: UUID
+    +name: string
+    +description: string
+    +tenant_id: UUID
+    +is_system: boolean
+    +permissions: array[UUID]
+    +created_at: datetime
+    +updated_at: datetime
+    +_links: Links
+}
+
+class Permission {
+    +id: UUID
+    +name: string
+    +description: string
+    +resource: string
+    +action: enum [create, read, update, delete, manage, execute]
+    +scope: string
+    +is_system: boolean
+    +created_at: datetime
+    +updated_at: datetime
+    +_links: Links
+}
+
+class Link {
+    +href: string
+    +method: string
+    +type: string
+    +title: string
+}
+
+class Links {
+    +self: Link
+    +[relation_name]: Link
+}
+
+class Error {
+    +code: string
+    +message: string
+    +details: array
+    +target: string
+    +documentation_url: string
+}
+
+' Relationships
+Tenant "1" -- "0..*" User : contains >
+Tenant "1" -- "0..*" Role : defines >
+User "1" -- "1" Profile : has >
+User "0..*" -- "0..*" Role : assigned to >
+Role "0..*" -- "0..*" Permission : grants >
+
+' HATEOAS relationships (dashed to indicate they're not database relationships)
+Tenant ..> Links : uses >
+User ..> Links : uses >
+Profile ..> Links : uses >
+Role ..> Links : uses >
+Permission ..> Links : uses >
+Links "1" *-- "1..*" Link : contains >
+
+@enduml

@@ -1,0 +1,204 @@
+permissions:
+  get:
+    tags:
+      - Permissions
+    summary: List permissions
+    description: Get a paginated list of permissions
+    operationId: listPermissions
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/PaginationLimit'
+      - $ref: '../openapi.yaml#/components/parameters/PaginationOffset'
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Search term to filter permissions by name
+      - name: resource
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Filter permissions by resource
+      - name: action
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Filter permissions by action
+      - name: isSystemPermission
+        in: query
+        required: false
+        schema:
+          type: boolean
+        description: Filter by system or custom permissions
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [name, resource, action, createdAt]
+          default: name
+        description: Field to sort the results by
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: asc
+        description: Sort order (ascending or descending)
+    responses:
+      '200':
+        description: List of permissions
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/permission.yaml#/PermissionList'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  post:
+    tags:
+      - Permissions
+    summary: Create a permission
+    description: Create a new permission
+    operationId: createPermission
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/permission.yaml#/PermissionCreate'
+    responses:
+      '201':
+        description: Permission created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/permission.yaml#/Permission'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '409':
+        description: Conflict - Permission with this name already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+
+permissionsById:
+  get:
+    tags:
+      - Permissions
+    summary: Get permission by ID
+    description: Retrieve a specific permission by ID
+    operationId: getPermissionById
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/PermissionIdParam'
+    responses:
+      '200':
+        description: Permission details
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/permission.yaml#/Permission'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  put:
+    tags:
+      - Permissions
+    summary: Update permission
+    description: Update an existing permission
+    operationId: updatePermission
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/PermissionIdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/permission.yaml#/PermissionUpdate'
+    responses:
+      '200':
+        description: Permission updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/permission.yaml#/Permission'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+      '409':
+        description: Conflict - Permission with this name already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  delete:
+    tags:
+      - Permissions
+    summary: Deactivate permission
+    description: Deactivates a permission by changing its status to 'inactive' and recording the deactivation timestamp
+    operationId: deletePermission
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/PermissionIdParam'
+    responses:
+      '204':
+        description: Permission deleted successfully
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+      '409':
+        description: Conflict - Permission is still in use
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []

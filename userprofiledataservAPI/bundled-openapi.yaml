@@ -1,0 +1,2520 @@
+openapi: 3.0.3
+info:
+  title: User Management API
+  description: |
+    A comprehensive multi-tenant user identity and profile management REST API. This API provides 
+    functionality for managing user identities, authentication, authorization, and profile data 
+    across multiple tenants.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+    url: 'https://example.com/support'
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'https://api.example.com/v1'
+    description: Production server
+  - url: 'https://staging-api.example.com/v1'
+    description: Staging server
+  - url: 'https://dev-api.example.com/v1'
+    description: Development server
+tags:
+  - name: Authentication
+    description: 'Authentication endpoints for login, registration, and token management'
+  - name: Users
+    description: User resource management
+  - name: Profiles
+    description: User profile data management
+  - name: Tenants
+    description: Multi-tenant management operations
+  - name: Roles
+    description: Role-based access control
+  - name: Permissions
+    description: Permission management
+  - name: Versioning
+    description: API version discovery and management
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and get access token
+      description: 'Authenticates a user with email and password, returns JWT tokens for API access'
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account within a tenant
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /auth/refresh-token:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get a new access token using a valid refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token successfully refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /auth/password-reset:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: Initiates the password reset process for a user
+      operationId: passwordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '200':
+          description: Password reset email sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  '/auth/password-reset/{token}':
+    post:
+      tags:
+        - Authentication
+      summary: Confirm password reset
+      description: Completes the password reset process using a valid token
+      operationId: passwordResetConfirm
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Password reset token received via email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+      responses:
+        '200':
+          description: Password successfully reset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /auth/mfa/setup:
+    post:
+      tags:
+        - Authentication
+      summary: Set up multi-factor authentication
+      description: Initialize multi-factor authentication for a user
+      operationId: mfaSetup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaSetupRequest'
+      responses:
+        '200':
+          description: MFA setup successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaSetupResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+        - BearerAuth: []
+  /auth/mfa/verify:
+    post:
+      tags:
+        - Authentication
+      summary: Verify MFA code
+      description: Verify a multi-factor authentication code during login or setup
+      operationId: mfaVerify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaVerifyRequest'
+      responses:
+        '200':
+          description: MFA verification successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                    description: Whether verification was successful
+                  accessToken:
+                    type: string
+                    description: JWT access token (provided if this was during login)
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+        - BearerAuth: []
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List users
+      description: Get a paginated list of users within the tenant
+      operationId: listUsers
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search term to filter users by name or email
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+              - inactive
+              - suspended
+              - pending
+          description: Filter users by status
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - email
+              - firstName
+              - lastName
+              - status
+              - createdAt
+            default: createdAt
+          description: Field to sort the results by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order (ascending or descending)
+      responses:
+        '200':
+          description: List of users
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    post:
+      tags:
+        - Users
+      summary: Create a user
+      description: Create a new user within the tenant
+      operationId: createUser
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            IdempotencyRequestId:
+              $ref: '#/components/headers/IdempotencyRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict - User with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/users/{userId}':
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      description: Retrieve a specific user by their ID
+      operationId: getUserById
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: User details
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Update an existing user's information
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+        - $ref: '#/components/parameters/IfMatchHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - User with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    delete:
+      tags:
+        - Users
+      summary: Deactivate user
+      description: Deactivates a user by changing their status to 'inactive' and recording the deactivation timestamp
+      operationId: deleteUser
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+        - $ref: '#/components/parameters/IfMatchHeader'
+        - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      responses:
+        '204':
+          description: User deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/users/{userId}/roles':
+    get:
+      tags:
+        - Users
+        - Roles
+      summary: List user roles
+      description: Get all roles assigned to a user
+      operationId: getUserRoles
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: List of user roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    post:
+      tags:
+        - Users
+        - Roles
+      summary: Assign role to user
+      description: Assign a role to a user
+      operationId: assignRoleToUser
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - roleId
+              properties:
+                roleId:
+                  type: string
+                  format: uuid
+                  description: ID of the role to assign
+      responses:
+        '204':
+          description: Role assigned successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - User already has this role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    delete:
+      tags:
+        - Users
+        - Roles
+      summary: Remove role from user
+      description: Remove a role from a user
+      operationId: removeRoleFromUser
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+        - name: roleId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the role to remove
+      responses:
+        '204':
+          description: Role removed successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/profiles/{userId}':
+    get:
+      tags:
+        - Profiles
+      summary: Get user profile
+      description: Retrieve a user's profile information
+      operationId: getUserProfile
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    put:
+      tags:
+        - Profiles
+      summary: Update user profile
+      description: Update a user's profile information
+      operationId: updateUserProfile
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/profiles/{userId}/preferences':
+    get:
+      tags:
+        - Profiles
+      summary: Get user preferences
+      description: Retrieve a user's preferences
+      operationId: getUserPreferences
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: User preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    put:
+      tags:
+        - Profiles
+      summary: Update user preferences
+      description: Update a user's preferences
+      operationId: updateUserPreferences
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreferencesUpdate'
+      responses:
+        '200':
+          description: Preferences updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  /tenants:
+    get:
+      tags:
+        - Tenants
+      summary: List tenants
+      description: Get a paginated list of tenants (admin only)
+      operationId: listTenants
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search term to filter tenants by name
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+              - inactive
+              - suspended
+              - pending
+          description: Filter tenants by status
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - name
+              - status
+              - createdAt
+            default: createdAt
+          description: Field to sort the results by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order (ascending or descending)
+      responses:
+        '200':
+          description: List of tenants
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantList'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    post:
+      tags:
+        - Tenants
+      summary: Create a tenant
+      description: Create a new tenant (admin only)
+      operationId: createTenant
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreate'
+      responses:
+        '201':
+          description: Tenant created successfully
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            IdempotencyRequestId:
+              $ref: '#/components/headers/IdempotencyRequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict - Tenant with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/tenants/{tenantId}':
+    get:
+      tags:
+        - Tenants
+      summary: Get tenant by ID
+      description: Retrieve a specific tenant by ID (admin or tenant member)
+      operationId: getTenantById
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/TenantIdParam'
+      responses:
+        '200':
+          description: Tenant details
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    put:
+      tags:
+        - Tenants
+      summary: Update tenant
+      description: Update an existing tenant (admin only)
+      operationId: updateTenant
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/IfMatchHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUpdate'
+      responses:
+        '200':
+          description: Tenant updated successfully
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Tenant with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    delete:
+      tags:
+        - Tenants
+      summary: Deactivate tenant
+      description: Deactivates a tenant by changing its status to 'inactive' and recording the deactivation timestamp (admin only)
+      operationId: deleteTenant
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/IfMatchHeader'
+        - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      responses:
+        '204':
+          description: Tenant deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/tenants/{tenantId}/users':
+    get:
+      tags:
+        - Tenants
+        - Users
+      summary: List tenant users
+      description: Get a paginated list of users in a specific tenant
+      operationId: listTenantUsers
+      parameters:
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search term to filter users by name or email
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+              - inactive
+              - suspended
+              - pending
+          description: Filter users by status
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - email
+              - firstName
+              - lastName
+              - status
+              - createdAt
+            default: createdAt
+          description: Field to sort the results by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Sort order (ascending or descending)
+      responses:
+        '200':
+          description: List of users in the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  /roles:
+    get:
+      tags:
+        - Roles
+      summary: List roles
+      description: Get a paginated list of roles within the tenant
+      operationId: listRoles
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search term to filter roles by name
+        - name: isSystemRole
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filter by system or custom roles
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - name
+              - createdAt
+            default: name
+          description: Field to sort the results by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          description: Sort order (ascending or descending)
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleList'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    post:
+      tags:
+        - Roles
+      summary: Create a role
+      description: Create a new role within the tenant
+      operationId: createRole
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleCreate'
+      responses:
+        '201':
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict - Role with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/roles/{roleId}':
+    get:
+      tags:
+        - Roles
+      summary: Get role by ID
+      description: Retrieve a specific role by ID
+      operationId: getRoleById
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/RoleIdParam'
+      responses:
+        '200':
+          description: Role details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    put:
+      tags:
+        - Roles
+      summary: Update role
+      description: Update an existing role
+      operationId: updateRole
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/RoleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUpdate'
+      responses:
+        '200':
+          description: Role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Role with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    delete:
+      tags:
+        - Roles
+      summary: Deactivate role
+      description: Deactivates a role by changing its status to 'inactive' and recording the deactivation timestamp
+      operationId: deleteRole
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/RoleIdParam'
+      responses:
+        '204':
+          description: Role deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Role is still in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/roles/{roleId}/permissions':
+    get:
+      tags:
+        - Roles
+        - Permissions
+      summary: List role permissions
+      description: Get all permissions assigned to a role
+      operationId: getRolePermissions
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/RoleIdParam'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+      responses:
+        '200':
+          description: List of permissions assigned to the role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    post:
+      tags:
+        - Roles
+        - Permissions
+      summary: Assign permission to role
+      description: Assign a permission to a role
+      operationId: assignPermissionToRole
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/RoleIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permissionId
+              properties:
+                permissionId:
+                  type: string
+                  format: uuid
+                  description: ID of the permission to assign
+      responses:
+        '204':
+          description: Permission assigned successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Role already has this permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    delete:
+      tags:
+        - Roles
+        - Permissions
+      summary: Remove permission from role
+      description: Remove a permission from a role
+      operationId: removePermissionFromRole
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/RoleIdParam'
+        - name: permissionId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the permission to remove
+      responses:
+        '204':
+          description: Permission removed successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  /permissions:
+    get:
+      tags:
+        - Permissions
+      summary: List permissions
+      description: Get a paginated list of permissions
+      operationId: listPermissions
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationOffset'
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search term to filter permissions by name
+        - name: resource
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter permissions by resource
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter permissions by action
+        - name: isSystemPermission
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filter by system or custom permissions
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - name
+              - resource
+              - action
+              - createdAt
+            default: name
+          description: Field to sort the results by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          description: Sort order (ascending or descending)
+      responses:
+        '200':
+          description: List of permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionList'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    post:
+      tags:
+        - Permissions
+      summary: Create a permission
+      description: Create a new permission
+      operationId: createPermission
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionCreate'
+      responses:
+        '201':
+          description: Permission created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict - Permission with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  '/permissions/{permissionId}':
+    get:
+      tags:
+        - Permissions
+      summary: Get permission by ID
+      description: Retrieve a specific permission by ID
+      operationId: getPermissionById
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PermissionIdParam'
+      responses:
+        '200':
+          description: Permission details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    put:
+      tags:
+        - Permissions
+      summary: Update permission
+      description: Update an existing permission
+      operationId: updatePermission
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PermissionIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionUpdate'
+      responses:
+        '200':
+          description: Permission updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Permission with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+    delete:
+      tags:
+        - Permissions
+      summary: Deactivate permission
+      description: Deactivates a permission by changing its status to 'inactive' and recording the deactivation timestamp
+      operationId: deletePermission
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/ApiVersionHeader'
+        - $ref: '#/components/parameters/PermissionIdParam'
+      responses:
+        '204':
+          description: Permission deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Permission is still in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+  /versions:
+    get:
+      tags:
+        - Versioning
+      summary: List API versions
+      description: Get information about available API versions and versioning policy
+      operationId: listVersions
+      responses:
+        '200':
+          description: List of API versions and version policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionsList'
+      security: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login endpoint
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service authentication
+  parameters:
+    TenantIdHeader:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the tenant to operate within
+    ApiVersionHeader:
+      name: X-API-Version
+      in: header
+      required: false
+      schema:
+        type: string
+        default: 1.0.0
+      description: API version requested by the client
+    IdempotencyKeyHeader:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: Client-provided idempotency key for safe retries of non-idempotent operations
+    IfMatchHeader:
+      name: If-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Only perform operation if the resource's ETag matches
+    IfNoneMatchHeader:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Only perform operation if the resource's ETag doesn't match
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the user
+    TenantIdParam:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the tenant
+    RoleIdParam:
+      name: roleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the role
+    PermissionIdParam:
+      name: permissionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the permission
+    PaginationLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Maximum number of items to return
+    PaginationOffset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Number of items to skip
+  headers:
+    ETag:
+      description: Entity tag for the resource version
+      schema:
+        type: string
+    IdempotencyRequestId:
+      description: Unique identifier of the original request that was processed
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: Authentication credentials are missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: The authenticated user does not have permission to access the requested resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: The request contains invalid data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: The rate limit ceiling for the given endpoint
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: The number of remaining requests in the current rate limit window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+            format: unix-timestamp
+          description: The time at which the current rate limit window resets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+    ValidationError:
+      type: object
+      required:
+        - code
+        - message
+        - fields
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        fields:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                description: Name of the field with validation error
+              message:
+                type: string
+                description: Validation error message
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - firstName
+        - lastName
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        email:
+          type: string
+          format: email
+          description: User's email address
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - suspended
+            - pending
+          description: Current status of the user
+        phoneNumber:
+          type: string
+          description: User's phone number
+        lastLoginAt:
+          type: string
+          format: date-time
+          description: Timestamp of the user's last login
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was last updated
+        deletedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was soft-deleted (null if not deleted)
+        tenantId:
+          type: string
+          format: uuid
+          description: ID of the tenant the user belongs to
+    UserCreate:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - tenantId
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: User's password
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        phoneNumber:
+          type: string
+          description: User's phone number
+        tenantId:
+          type: string
+          format: uuid
+          description: ID of the tenant the user belongs to
+        roleIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of roles to assign to the user
+    UserUpdate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - suspended
+            - pending
+          description: Current status of the user
+        phoneNumber:
+          type: string
+          description: User's phone number
+    UserList:
+      type: object
+      required:
+        - users
+        - totalCount
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        totalCount:
+          type: integer
+          description: Total number of users matching the query
+        limit:
+          type: integer
+          description: Maximum number of items returned
+        offset:
+          type: integer
+          description: Number of items skipped
+    Profile:
+      type: object
+      required:
+        - userId
+        - displayName
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user this profile belongs to
+        displayName:
+          type: string
+          description: User's display name
+        avatarUrl:
+          type: string
+          format: uri
+          description: URL to the user's avatar image
+        bio:
+          type: string
+          description: User's biography or description
+        title:
+          type: string
+          description: User's professional title
+        department:
+          type: string
+          description: User's department
+        location:
+          type: string
+          description: User's location
+        timezone:
+          type: string
+          description: User's timezone in IANA format
+        languagePreference:
+          type: string
+          description: User's preferred language (ISO 639-1)
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the profile was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the profile was last updated
+    ProfileUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: User's display name
+        avatarUrl:
+          type: string
+          format: uri
+          description: URL to the user's avatar image
+        bio:
+          type: string
+          description: User's biography or description
+        title:
+          type: string
+          description: User's professional title
+        department:
+          type: string
+          description: User's department
+        location:
+          type: string
+          description: User's location
+        timezone:
+          type: string
+          description: User's timezone in IANA format
+        languagePreference:
+          type: string
+          description: User's preferred language (ISO 639-1)
+    Preferences:
+      type: object
+      required:
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user these preferences belong to
+        emailNotifications:
+          type: boolean
+          description: Whether the user wants to receive email notifications
+        pushNotifications:
+          type: boolean
+          description: Whether the user wants to receive push notifications
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+            - system
+          description: User's preferred UI theme
+        dashboardLayout:
+          type: object
+          description: User's customized dashboard layout settings
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the preferences were created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the preferences were last updated
+    PreferencesUpdate:
+      type: object
+      properties:
+        emailNotifications:
+          type: boolean
+          description: Whether the user wants to receive email notifications
+        pushNotifications:
+          type: boolean
+          description: Whether the user wants to receive push notifications
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+            - system
+          description: User's preferred UI theme
+        dashboardLayout:
+          type: object
+          description: User's customized dashboard layout settings
+    Tenant:
+      type: object
+      required:
+        - id
+        - name
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the tenant
+        name:
+          type: string
+          description: Name of the tenant
+        displayName:
+          type: string
+          description: Display name of the tenant
+        description:
+          type: string
+          description: Description of the tenant
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - suspended
+            - pending
+          description: Current status of the tenant
+        settings:
+          type: object
+          description: Tenant-specific settings
+        domainNames:
+          type: array
+          items:
+            type: string
+          description: Domain names associated with this tenant
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the tenant was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the tenant was last updated
+        deletedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the tenant was soft-deleted (null if not deleted)
+    TenantCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the tenant (used for identification)
+        displayName:
+          type: string
+          description: Display name of the tenant
+        description:
+          type: string
+          description: Description of the tenant
+        settings:
+          type: object
+          description: Tenant-specific settings
+        domainNames:
+          type: array
+          items:
+            type: string
+          description: Domain names associated with this tenant
+    TenantUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the tenant
+        displayName:
+          type: string
+          description: Display name of the tenant
+        description:
+          type: string
+          description: Description of the tenant
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - suspended
+            - pending
+          description: Current status of the tenant
+        settings:
+          type: object
+          description: Tenant-specific settings
+        domainNames:
+          type: array
+          items:
+            type: string
+          description: Domain names associated with this tenant
+    TenantList:
+      type: object
+      required:
+        - tenants
+        - totalCount
+      properties:
+        tenants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tenant'
+        totalCount:
+          type: integer
+          description: Total number of tenants matching the query
+        limit:
+          type: integer
+          description: Maximum number of items returned
+        offset:
+          type: integer
+          description: Number of items skipped
+    Role:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the role
+        name:
+          type: string
+          description: Name of the role
+        description:
+          type: string
+          description: Description of the role and its purpose
+        tenantId:
+          type: string
+          format: uuid
+          description: ID of the tenant this role belongs to
+        isSystemRole:
+          type: boolean
+          description: Whether this is a system-defined role that cannot be modified
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - deleted
+          description: Current status of the role (deleted means the role has been soft-deleted)
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the role was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the role was last updated
+        deletedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the role was soft-deleted (null if not deleted)
+    RoleCreate:
+      type: object
+      required:
+        - name
+        - description
+        - tenantId
+      properties:
+        name:
+          type: string
+          description: Name of the role
+        description:
+          type: string
+          description: Description of the role and its purpose
+        tenantId:
+          type: string
+          format: uuid
+          description: ID of the tenant this role belongs to
+        permissionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of permissions to assign to this role
+    RoleUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the role
+        description:
+          type: string
+          description: Description of the role and its purpose
+    RoleList:
+      type: object
+      required:
+        - roles
+        - totalCount
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        totalCount:
+          type: integer
+          description: Total number of roles matching the query
+        limit:
+          type: integer
+          description: Maximum number of items returned
+        offset:
+          type: integer
+          description: Number of items skipped
+    Permission:
+      type: object
+      required:
+        - id
+        - name
+        - resource
+        - action
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the permission
+        name:
+          type: string
+          description: Name of the permission
+        description:
+          type: string
+          description: Description of the permission
+        resource:
+          type: string
+          description: 'Resource this permission applies to (e.g., ''user'', ''profile'', ''tenant'')'
+        action:
+          type: string
+          description: 'Action this permission allows (e.g., ''create'', ''read'', ''update'', ''delete'')'
+        conditions:
+          type: object
+          description: Conditional expressions that determine when this permission applies
+        isSystemPermission:
+          type: boolean
+          description: Whether this is a system-defined permission that cannot be modified
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - deleted
+          description: Current status of the permission (deleted means the permission has been soft-deleted)
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the permission was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the permission was last updated
+        deletedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the permission was soft-deleted (null if not deleted)
+    PermissionCreate:
+      type: object
+      required:
+        - name
+        - resource
+        - action
+      properties:
+        name:
+          type: string
+          description: Name of the permission
+        description:
+          type: string
+          description: Description of the permission
+        resource:
+          type: string
+          description: 'Resource this permission applies to (e.g., ''user'', ''profile'', ''tenant'')'
+        action:
+          type: string
+          description: 'Action this permission allows (e.g., ''create'', ''read'', ''update'', ''delete'')'
+        conditions:
+          type: object
+          description: Conditional expressions that determine when this permission applies
+    PermissionUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the permission
+        description:
+          type: string
+          description: Description of the permission
+        conditions:
+          type: object
+          description: Conditional expressions that determine when this permission applies
+    PermissionList:
+      type: object
+      required:
+        - permissions
+        - totalCount
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        totalCount:
+          type: integer
+          description: Total number of permissions matching the query
+        limit:
+          type: integer
+          description: Maximum number of items returned
+        offset:
+          type: integer
+          description: Number of items skipped
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          description: User's password
+        mfaCode:
+          type: string
+          description: MFA verification code if MFA is enabled
+    LoginResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - tokenType
+        - expiresIn
+        - user
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token for API authorization
+        refreshToken:
+          type: string
+          description: Refresh token to obtain new access tokens
+        tokenType:
+          type: string
+          enum:
+            - bearer
+          description: Type of token issued
+        expiresIn:
+          type: integer
+          description: Time in seconds until the access token expires
+        user:
+          $ref: '#/components/schemas/User'
+        mfaRequired:
+          type: boolean
+          description: Whether MFA verification is required to complete login
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - tenantId
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: User's password
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        phoneNumber:
+          type: string
+          description: User's phone number
+        tenantId:
+          type: string
+          format: uuid
+          description: ID of the tenant the user belongs to
+    RegisterResponse:
+      type: object
+      required:
+        - message
+        - userId
+      properties:
+        message:
+          type: string
+          description: Success message or information about next steps
+        userId:
+          type: string
+          format: uuid
+          description: ID of the newly created user
+        verificationRequired:
+          type: boolean
+          description: Whether email verification is required
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Refresh token obtained from login or previous refresh
+    RefreshTokenResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - tokenType
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+          description: New JWT access token
+        refreshToken:
+          type: string
+          description: New refresh token (if refresh token rotation is enabled)
+        tokenType:
+          type: string
+          enum:
+            - bearer
+          description: Type of token issued
+        expiresIn:
+          type: integer
+          description: Time in seconds until the access token expires
+    PasswordResetRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address for the account that needs password reset
+    PasswordResetConfirmRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: New password
+    MfaSetupRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - totp
+            - sms
+          description: Type of MFA to set up
+        phoneNumber:
+          type: string
+          description: 'Phone number for SMS verification, required if type is ''sms'''
+    MfaSetupResponse:
+      type: object
+      required:
+        - secret
+        - qrCodeUrl
+      properties:
+        secret:
+          type: string
+          description: Secret key for TOTP setup
+        qrCodeUrl:
+          type: string
+          format: uri
+          description: URL to QR code for easy TOTP setup in authenticator apps
+        verificationRequired:
+          type: boolean
+          description: Whether verification is required to complete setup
+    MfaVerifyRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: MFA verification code
+    VersionInfo:
+      type: object
+      required:
+        - version
+        - status
+        - releaseDate
+        - endOfLifeDate
+      properties:
+        version:
+          type: string
+          description: API version identifier in semantic versioning format
+        status:
+          type: string
+          enum:
+            - current
+            - deprecated
+            - sunset
+          description: Current status of this API version
+        releaseDate:
+          type: string
+          format: date
+          description: Date when this version was released
+        endOfLifeDate:
+          type: string
+          format: date
+          description: Date when this version will no longer be supported
+        deprecationDate:
+          type: string
+          format: date
+          description: Date when this version was marked as deprecated
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - addition
+                  - modification
+                  - removal
+                description: Type of change
+              description:
+                type: string
+                description: Description of the change
+              path:
+                type: string
+                description: API path affected by the change
+        migrationGuide:
+          type: string
+          format: uri
+          description: URL to documentation about migrating from this version
+    VersionsList:
+      type: object
+      required:
+        - versions
+        - currentVersion
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersionInfo'
+        currentVersion:
+          type: string
+          description: The currently recommended API version
+        versionPolicy:
+          type: object
+          properties:
+            supportPeriod:
+              type: string
+              description: 'How long each version is supported (e.g., ''3 years'')'
+            deprecationNotice:
+              type: string
+              description: 'How much notice will be given before deprecation (e.g., ''6 months'')'
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []

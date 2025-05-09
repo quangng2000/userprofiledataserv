@@ -1,0 +1,421 @@
+openapi: 3.0.3
+info:
+  title: User Management API
+  description: |
+    A comprehensive multi-tenant user identity and profile management REST API. This API provides 
+    functionality for managing user identities, authentication, authorization, and profile data 
+    across multiple tenants.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+    url: https://example.com/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://staging-api.example.com/v1
+    description: Staging server
+  - url: https://dev-api.example.com/v1
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: Authentication endpoints for login, registration, and token management
+  - name: Users
+    description: User resource management
+  - name: Profiles
+    description: User profile data management
+  - name: Tenants
+    description: Multi-tenant management operations
+  - name: Roles
+    description: Role-based access control
+  - name: Permissions
+    description: Permission management
+  - name: Versioning
+    description: API version discovery and management
+
+paths:
+  # Authentication paths
+  /auth/login:
+    $ref: 'paths/auth.yaml#/login'
+  /auth/register:
+    $ref: 'paths/auth.yaml#/register'
+  /auth/refresh-token:
+    $ref: 'paths/auth.yaml#/refreshToken'
+  /auth/password-reset:
+    $ref: 'paths/auth.yaml#/passwordReset'
+  /auth/password-reset/{token}:
+    $ref: 'paths/auth.yaml#/passwordResetConfirm'
+  /auth/mfa/setup:
+    $ref: 'paths/auth.yaml#/mfaSetup'
+  /auth/mfa/verify:
+    $ref: 'paths/auth.yaml#/mfaVerify'
+  
+  # User paths
+  /users:
+    $ref: 'paths/users.yaml#/users'
+  /users/{userId}:
+    $ref: 'paths/users.yaml#/usersById'
+  /users/{userId}/roles:
+    $ref: 'paths/users.yaml#/userRoles'
+  
+  # Profile paths
+  /profiles/{userId}:
+    $ref: 'paths/profiles.yaml#/profiles'
+  /profiles/{userId}/preferences:
+    $ref: 'paths/profiles.yaml#/preferences'
+  
+  # Tenant paths
+  /tenants:
+    $ref: 'paths/tenants.yaml#/tenants'
+  /tenants/{tenantId}:
+    $ref: 'paths/tenants.yaml#/tenantsById'
+  /tenants/{tenantId}/users:
+    $ref: 'paths/tenants.yaml#/tenantUsers'
+  
+  # Role paths
+  /roles:
+    $ref: 'paths/roles.yaml#/roles'
+  /roles/{roleId}:
+    $ref: 'paths/roles.yaml#/rolesById'
+  /roles/{roleId}/permissions:
+    $ref: 'paths/roles.yaml#/rolePermissions'
+  
+  # Permission paths
+  /permissions:
+    $ref: 'paths/permissions.yaml#/permissions'
+  /permissions/{permissionId}:
+    $ref: 'paths/permissions.yaml#/permissionsById'
+  
+  # Version discovery
+  /versions:
+    $ref: 'paths/versions.yaml#/versions'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login endpoint
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service authentication
+  
+  parameters:
+    TenantIdHeader:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the tenant to operate within
+    
+    ApiVersionHeader:
+      name: X-API-Version
+      in: header
+      required: false
+      schema:
+        type: string
+        default: '1.0.0'
+      description: API version requested by the client
+    
+    IdempotencyKeyHeader:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: Client-provided idempotency key for safe retries of non-idempotent operations
+    
+    IfMatchHeader:
+      name: If-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Only perform operation if the resource's ETag matches
+    
+    IfNoneMatchHeader:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Only perform operation if the resource's ETag doesn't match
+    
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the user
+    
+    TenantIdParam:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the tenant
+    
+    RoleIdParam:
+      name: roleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the role
+    
+    PermissionIdParam:
+      name: permissionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID of the permission
+    
+    PaginationLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Maximum number of items to return
+    
+    PaginationOffset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Number of items to skip
+  
+  headers:
+    ETag:
+      description: Entity tag for the resource version
+      schema:
+        type: string
+    
+    IdempotencyRequestId:
+      description: Unique identifier of the original request that was processed
+      schema:
+        type: string
+        format: uuid
+  
+  responses:
+    Unauthorized:
+      description: Authentication credentials are missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: The authenticated user does not have permission to access the requested resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: The requested resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    ValidationError:
+      description: The request contains invalid data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: The rate limit ceiling for the given endpoint
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: The number of remaining requests in the current rate limit window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+            format: unix-timestamp
+          description: The time at which the current rate limit window resets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+    
+    ValidationError:
+      type: object
+      required:
+        - code
+        - message
+        - fields
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        fields:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                description: Name of the field with validation error
+              message:
+                type: string
+                description: Validation error message
+    
+    # References to schemas in separate files
+    User:
+      $ref: 'schemas/user.yaml#/User'
+    
+    UserCreate:
+      $ref: 'schemas/user.yaml#/UserCreate'
+    
+    UserUpdate:
+      $ref: 'schemas/user.yaml#/UserUpdate'
+    
+    UserList:
+      $ref: 'schemas/user.yaml#/UserList'
+    
+    Profile:
+      $ref: 'schemas/profile.yaml#/Profile'
+    
+    ProfileUpdate:
+      $ref: 'schemas/profile.yaml#/ProfileUpdate'
+    
+    Preferences:
+      $ref: 'schemas/profile.yaml#/Preferences'
+    
+    PreferencesUpdate:
+      $ref: 'schemas/profile.yaml#/PreferencesUpdate'
+    
+    Tenant:
+      $ref: 'schemas/tenant.yaml#/Tenant'
+    
+    TenantCreate:
+      $ref: 'schemas/tenant.yaml#/TenantCreate'
+    
+    TenantUpdate:
+      $ref: 'schemas/tenant.yaml#/TenantUpdate'
+    
+    TenantList:
+      $ref: 'schemas/tenant.yaml#/TenantList'
+    
+    Role:
+      $ref: 'schemas/role.yaml#/Role'
+    
+    RoleCreate:
+      $ref: 'schemas/role.yaml#/RoleCreate'
+    
+    RoleUpdate:
+      $ref: 'schemas/role.yaml#/RoleUpdate'
+    
+    RoleList:
+      $ref: 'schemas/role.yaml#/RoleList'
+    
+    Permission:
+      $ref: 'schemas/permission.yaml#/Permission'
+    
+    PermissionCreate:
+      $ref: 'schemas/permission.yaml#/PermissionCreate'
+    
+    PermissionUpdate:
+      $ref: 'schemas/permission.yaml#/PermissionUpdate'
+    
+    PermissionList:
+      $ref: 'schemas/permission.yaml#/PermissionList'
+    
+    LoginRequest:
+      $ref: 'schemas/auth.yaml#/LoginRequest'
+    
+    LoginResponse:
+      $ref: 'schemas/auth.yaml#/LoginResponse'
+    
+    RegisterRequest:
+      $ref: 'schemas/auth.yaml#/RegisterRequest'
+    
+    RegisterResponse:
+      $ref: 'schemas/auth.yaml#/RegisterResponse'
+    
+    RefreshTokenRequest:
+      $ref: 'schemas/auth.yaml#/RefreshTokenRequest'
+    
+    RefreshTokenResponse:
+      $ref: 'schemas/auth.yaml#/RefreshTokenResponse'
+    
+    PasswordResetRequest:
+      $ref: 'schemas/auth.yaml#/PasswordResetRequest'
+    
+    PasswordResetConfirmRequest:
+      $ref: 'schemas/auth.yaml#/PasswordResetConfirmRequest'
+    
+    MfaSetupRequest:
+      $ref: 'schemas/auth.yaml#/MfaSetupRequest'
+    
+    MfaSetupResponse:
+      $ref: 'schemas/auth.yaml#/MfaSetupResponse'
+    
+    MfaVerifyRequest:
+      $ref: 'schemas/auth.yaml#/MfaVerifyRequest'
+    
+    VersionInfo:
+      $ref: 'schemas/version.yaml#/VersionInfo'
+    
+    VersionsList:
+      $ref: 'schemas/version.yaml#/VersionsList'
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []

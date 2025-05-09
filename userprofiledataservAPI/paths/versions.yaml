@@ -1,0 +1,15 @@
+versions:
+  get:
+    tags:
+      - Versioning
+    summary: List API versions
+    description: Get information about available API versions and versioning policy
+    operationId: listVersions
+    responses:
+      '200':
+        description: List of API versions and version policy
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/version.yaml#/VersionsList'
+    security: []  # No authentication required for this endpoint

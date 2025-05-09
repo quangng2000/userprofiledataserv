@@ -1,0 +1,96 @@
+Role:
+  type: object
+  required:
+    - id
+    - name
+    - description
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the role
+    name:
+      type: string
+      description: Name of the role
+    description:
+      type: string
+      description: Description of the role and its purpose
+    tenantId:
+      type: string
+      format: uuid
+      description: ID of the tenant this role belongs to
+    isSystemRole:
+      type: boolean
+      description: Whether this is a system-defined role that cannot be modified
+    status:
+      type: string
+      enum: [active, inactive, deleted]
+      description: Current status of the role (deleted means the role has been soft-deleted)
+    createdAt:
+      type: string
+      format: date-time
+      description: Timestamp when the role was created
+    updatedAt:
+      type: string
+      format: date-time
+      description: Timestamp when the role was last updated
+    deletedAt:
+      type: string
+      format: date-time
+      description: Timestamp when the role was soft-deleted (null if not deleted)
+
+RoleCreate:
+  type: object
+  required:
+    - name
+    - description
+    - tenantId
+  properties:
+    name:
+      type: string
+      description: Name of the role
+    description:
+      type: string
+      description: Description of the role and its purpose
+    tenantId:
+      type: string
+      format: uuid
+      description: ID of the tenant this role belongs to
+    permissionIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+      description: IDs of permissions to assign to this role
+
+RoleUpdate:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Name of the role
+    description:
+      type: string
+      description: Description of the role and its purpose
+
+RoleList:
+  type: object
+  required:
+    - roles
+    - totalCount
+  properties:
+    roles:
+      type: array
+      items:
+        $ref: '#/Role'
+    totalCount:
+      type: integer
+      description: Total number of roles matching the query
+    limit:
+      type: integer
+      description: Maximum number of items returned
+    offset:
+      type: integer
+      description: Number of items skipped

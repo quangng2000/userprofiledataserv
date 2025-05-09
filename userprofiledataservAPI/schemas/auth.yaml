@@ -1,0 +1,185 @@
+LoginRequest:
+  type: object
+  required:
+    - email
+    - password
+  properties:
+    email:
+      type: string
+      format: email
+      description: User's email address
+    password:
+      type: string
+      format: password
+      description: User's password
+    mfaCode:
+      type: string
+      description: MFA verification code if MFA is enabled
+
+LoginResponse:
+  type: object
+  required:
+    - accessToken
+    - refreshToken
+    - tokenType
+    - expiresIn
+    - user
+  properties:
+    accessToken:
+      type: string
+      description: JWT access token for API authorization
+    refreshToken:
+      type: string
+      description: Refresh token to obtain new access tokens
+    tokenType:
+      type: string
+      enum: [bearer]
+      description: Type of token issued
+    expiresIn:
+      type: integer
+      description: Time in seconds until the access token expires
+    user:
+      $ref: 'user.yaml#/User'
+    mfaRequired:
+      type: boolean
+      description: Whether MFA verification is required to complete login
+
+RegisterRequest:
+  type: object
+  required:
+    - email
+    - password
+    - firstName
+    - lastName
+    - tenantId
+  properties:
+    email:
+      type: string
+      format: email
+      description: User's email address
+    password:
+      type: string
+      format: password
+      minLength: 8
+      description: User's password
+    firstName:
+      type: string
+      description: User's first name
+    lastName:
+      type: string
+      description: User's last name
+    phoneNumber:
+      type: string
+      description: User's phone number
+    tenantId:
+      type: string
+      format: uuid
+      description: ID of the tenant the user belongs to
+
+RegisterResponse:
+  type: object
+  required:
+    - message
+    - userId
+  properties:
+    message:
+      type: string
+      description: Success message or information about next steps
+    userId:
+      type: string
+      format: uuid
+      description: ID of the newly created user
+    verificationRequired:
+      type: boolean
+      description: Whether email verification is required
+
+RefreshTokenRequest:
+  type: object
+  required:
+    - refreshToken
+  properties:
+    refreshToken:
+      type: string
+      description: Refresh token obtained from login or previous refresh
+
+RefreshTokenResponse:
+  type: object
+  required:
+    - accessToken
+    - refreshToken
+    - tokenType
+    - expiresIn
+  properties:
+    accessToken:
+      type: string
+      description: New JWT access token
+    refreshToken:
+      type: string
+      description: New refresh token (if refresh token rotation is enabled)
+    tokenType:
+      type: string
+      enum: [bearer]
+      description: Type of token issued
+    expiresIn:
+      type: integer
+      description: Time in seconds until the access token expires
+
+PasswordResetRequest:
+  type: object
+  required:
+    - email
+  properties:
+    email:
+      type: string
+      format: email
+      description: Email address for the account that needs password reset
+
+PasswordResetConfirmRequest:
+  type: object
+  required:
+    - password
+  properties:
+    password:
+      type: string
+      format: password
+      minLength: 8
+      description: New password
+
+MfaSetupRequest:
+  type: object
+  required:
+    - type
+  properties:
+    type:
+      type: string
+      enum: [totp, sms]
+      description: Type of MFA to set up
+    phoneNumber:
+      type: string
+      description: Phone number for SMS verification, required if type is 'sms'
+
+MfaSetupResponse:
+  type: object
+  required:
+    - secret
+    - qrCodeUrl
+  properties:
+    secret:
+      type: string
+      description: Secret key for TOTP setup
+    qrCodeUrl:
+      type: string
+      format: uri
+      description: URL to QR code for easy TOTP setup in authenticator apps
+    verificationRequired:
+      type: boolean
+      description: Whether verification is required to complete setup
+
+MfaVerifyRequest:
+  type: object
+  required:
+    - code
+  properties:
+    code:
+      type: string
+      description: MFA verification code

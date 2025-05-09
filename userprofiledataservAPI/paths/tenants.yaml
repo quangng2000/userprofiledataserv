@@ -1,0 +1,261 @@
+tenants:
+  get:
+    tags:
+      - Tenants
+    summary: List tenants
+    description: Get a paginated list of tenants (admin only)
+    operationId: listTenants
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/PaginationLimit'
+      - $ref: '../openapi.yaml#/components/parameters/PaginationOffset'
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Search term to filter tenants by name
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [active, inactive, suspended, pending]
+        description: Filter tenants by status
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [name, status, createdAt]
+          default: createdAt
+        description: Field to sort the results by
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        description: Sort order (ascending or descending)
+    responses:
+      '200':
+        description: List of tenants
+        headers:
+          ETag:
+            $ref: '../openapi.yaml#/components/headers/ETag'
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tenant.yaml#/TenantList'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  post:
+    tags:
+      - Tenants
+    summary: Create a tenant
+    description: Create a new tenant (admin only)
+    operationId: createTenant
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/IdempotencyKeyHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/tenant.yaml#/TenantCreate'
+    responses:
+      '201':
+        description: Tenant created successfully
+        headers:
+          ETag:
+            $ref: '../openapi.yaml#/components/headers/ETag'
+          IdempotencyRequestId:
+            $ref: '../openapi.yaml#/components/headers/IdempotencyRequestId'
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tenant.yaml#/Tenant'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '409':
+        description: Conflict - Tenant with this name already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+
+tenantsById:
+  get:
+    tags:
+      - Tenants
+    summary: Get tenant by ID
+    description: Retrieve a specific tenant by ID (admin or tenant member)
+    operationId: getTenantById
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdParam'
+    responses:
+      '200':
+        description: Tenant details
+        headers:
+          ETag:
+            $ref: '../openapi.yaml#/components/headers/ETag'
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tenant.yaml#/Tenant'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  put:
+    tags:
+      - Tenants
+    summary: Update tenant
+    description: Update an existing tenant (admin only)
+    operationId: updateTenant
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdParam'
+      - $ref: '../openapi.yaml#/components/parameters/IfMatchHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/tenant.yaml#/TenantUpdate'
+    responses:
+      '200':
+        description: Tenant updated successfully
+        headers:
+          ETag:
+            $ref: '../openapi.yaml#/components/headers/ETag'
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tenant.yaml#/Tenant'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+      '409':
+        description: Conflict - Tenant with this name already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/Error'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  delete:
+    tags:
+      - Tenants
+    summary: Deactivate tenant
+    description: Deactivates a tenant by changing its status to 'inactive' and recording the deactivation timestamp (admin only)
+    operationId: deleteTenant
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdParam'
+      - $ref: '../openapi.yaml#/components/parameters/IfMatchHeader'
+      - $ref: '../openapi.yaml#/components/parameters/IdempotencyKeyHeader'
+    responses:
+      '204':
+        description: Tenant deleted successfully
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+
+tenantUsers:
+  get:
+    tags:
+      - Tenants
+      - Users
+    summary: List tenant users
+    description: Get a paginated list of users in a specific tenant
+    operationId: listTenantUsers
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdParam'
+      - $ref: '../openapi.yaml#/components/parameters/PaginationLimit'
+      - $ref: '../openapi.yaml#/components/parameters/PaginationOffset'
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Search term to filter users by name or email
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [active, inactive, suspended, pending]
+        description: Filter users by status
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [email, firstName, lastName, status, createdAt]
+          default: createdAt
+        description: Field to sort the results by
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        description: Sort order (ascending or descending)
+    responses:
+      '200':
+        description: List of users in the tenant
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/UserList'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []

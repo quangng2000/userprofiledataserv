@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      database: test
+      host: localhost
+      port: 27017
+  mongodb:
+    embedded:
+      version: 4.0.2
+
+app:
+  jwt:
+    secret: testSecretKeyLongEnoughForHS512Algorithm0123456789012345678901234
+    expiration-ms: 3600000

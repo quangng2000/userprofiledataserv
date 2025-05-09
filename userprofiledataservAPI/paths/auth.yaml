@@ -1,0 +1,217 @@
+login:
+  post:
+    tags:
+      - Authentication
+    summary: Authenticate user and get access token
+    description: Authenticates a user with email and password, returns JWT tokens for API access
+    operationId: login
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/LoginRequest'
+    responses:
+      '200':
+        description: Successful authentication
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/LoginResponse'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security: []
+
+register:
+  post:
+    tags:
+      - Authentication
+    summary: Register a new user
+    description: Creates a new user account within a tenant
+    operationId: register
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/RegisterRequest'
+    responses:
+      '201':
+        description: User successfully registered
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/RegisterResponse'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security: []
+
+refreshToken:
+  post:
+    tags:
+      - Authentication
+    summary: Refresh access token
+    description: Get a new access token using a valid refresh token
+    operationId: refreshToken
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/RefreshTokenRequest'
+    responses:
+      '200':
+        description: Token successfully refreshed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/RefreshTokenResponse'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security: []
+
+passwordReset:
+  post:
+    tags:
+      - Authentication
+    summary: Request password reset
+    description: Initiates the password reset process for a user
+    operationId: passwordReset
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/PasswordResetRequest'
+    responses:
+      '200':
+        description: Password reset email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Success message
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security: []
+
+passwordResetConfirm:
+  post:
+    tags:
+      - Authentication
+    summary: Confirm password reset
+    description: Completes the password reset process using a valid token
+    operationId: passwordResetConfirm
+    parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Password reset token received via email
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/PasswordResetConfirmRequest'
+    responses:
+      '200':
+        description: Password successfully reset
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Success message
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security: []
+
+mfaSetup:
+  post:
+    tags:
+      - Authentication
+    summary: Set up multi-factor authentication
+    description: Initialize multi-factor authentication for a user
+    operationId: mfaSetup
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/MfaSetupRequest'
+    responses:
+      '200':
+        description: MFA setup successful
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/MfaSetupResponse'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security:
+      - BearerAuth: []
+
+mfaVerify:
+  post:
+    tags:
+      - Authentication
+    summary: Verify MFA code
+    description: Verify a multi-factor authentication code during login or setup
+    operationId: mfaVerify
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/MfaVerifyRequest'
+    responses:
+      '200':
+        description: MFA verification successful
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                verified:
+                  type: boolean
+                  description: Whether verification was successful
+                accessToken:
+                  type: string
+                  description: JWT access token (provided if this was during login)
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '429':
+        $ref: '../openapi.yaml#/components/responses/TooManyRequests'
+    security:
+      - BearerAuth: []

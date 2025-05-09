@@ -1,0 +1,125 @@
+profiles:
+  get:
+    tags:
+      - Profiles
+    summary: Get user profile
+    description: Retrieve a user's profile information
+    operationId: getUserProfile
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/UserIdParam'
+    responses:
+      '200':
+        description: User profile
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/profile.yaml#/Profile'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  put:
+    tags:
+      - Profiles
+    summary: Update user profile
+    description: Update a user's profile information
+    operationId: updateUserProfile
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/UserIdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/profile.yaml#/ProfileUpdate'
+    responses:
+      '200':
+        description: Profile updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/profile.yaml#/Profile'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+
+preferences:
+  get:
+    tags:
+      - Profiles
+    summary: Get user preferences
+    description: Retrieve a user's preferences
+    operationId: getUserPreferences
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/UserIdParam'
+    responses:
+      '200':
+        description: User preferences
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/profile.yaml#/Preferences'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+  
+  put:
+    tags:
+      - Profiles
+    summary: Update user preferences
+    description: Update a user's preferences
+    operationId: updateUserPreferences
+    parameters:
+      - $ref: '../openapi.yaml#/components/parameters/TenantIdHeader'
+      - $ref: '../openapi.yaml#/components/parameters/ApiVersionHeader'
+      - $ref: '../openapi.yaml#/components/parameters/UserIdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/profile.yaml#/PreferencesUpdate'
+    responses:
+      '200':
+        description: Preferences updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/profile.yaml#/Preferences'
+      '400':
+        $ref: '../openapi.yaml#/components/responses/ValidationError'
+      '401':
+        $ref: '../openapi.yaml#/components/responses/Unauthorized'
+      '403':
+        $ref: '../openapi.yaml#/components/responses/Forbidden'
+      '404':
+        $ref: '../openapi.yaml#/components/responses/NotFound'
+    security:
+      - BearerAuth: []
+      - ApiKeyAuth: []

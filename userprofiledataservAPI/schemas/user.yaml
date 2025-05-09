@@ -1,0 +1,131 @@
+User:
+  type: object
+  required:
+    - id
+    - email
+    - firstName
+    - lastName
+    - status
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the user
+    email:
+      type: string
+      format: email
+      description: User's email address
+    firstName:
+      type: string
+      description: User's first name
+    lastName:
+      type: string
+      description: User's last name
+    status:
+      type: string
+      enum: [active, inactive, suspended, pending]
+      description: Current status of the user
+    phoneNumber:
+      type: string
+      description: User's phone number
+    lastLoginAt:
+      type: string
+      format: date-time
+      description: Timestamp of the user's last login
+    createdAt:
+      type: string
+      format: date-time
+      description: Timestamp when the user was created
+    updatedAt:
+      type: string
+      format: date-time
+      description: Timestamp when the user was last updated
+    deletedAt:
+      type: string
+      format: date-time
+      description: Timestamp when the user was soft-deleted (null if not deleted)
+    tenantId:
+      type: string
+      format: uuid
+      description: ID of the tenant the user belongs to
+
+UserCreate:
+  type: object
+  required:
+    - email
+    - password
+    - firstName
+    - lastName
+    - tenantId
+  properties:
+    email:
+      type: string
+      format: email
+      description: User's email address
+    password:
+      type: string
+      format: password
+      minLength: 8
+      description: User's password
+    firstName:
+      type: string
+      description: User's first name
+    lastName:
+      type: string
+      description: User's last name
+    phoneNumber:
+      type: string
+      description: User's phone number
+    tenantId:
+      type: string
+      format: uuid
+      description: ID of the tenant the user belongs to
+    roleIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+      description: IDs of roles to assign to the user
+
+UserUpdate:
+  type: object
+  properties:
+    email:
+      type: string
+      format: email
+      description: User's email address
+    firstName:
+      type: string
+      description: User's first name
+    lastName:
+      type: string
+      description: User's last name
+    status:
+      type: string
+      enum: [active, inactive, suspended, pending]
+      description: Current status of the user
+    phoneNumber:
+      type: string
+      description: User's phone number
+
+UserList:
+  type: object
+  required:
+    - users
+    - totalCount
+  properties:
+    users:
+      type: array
+      items:
+        $ref: '#/User'
+    totalCount:
+      type: integer
+      description: Total number of users matching the query
+    limit:
+      type: integer
+      description: Maximum number of items returned
+    offset:
+      type: integer
+      description: Number of items skipped
