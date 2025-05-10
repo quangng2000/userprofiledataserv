@@ -1,5 +1,7 @@
 package com.riftco.userprofiledataserv.domain.event;
 
+import com.riftco.userprofiledataserv.domain.TenantType;
+import com.riftco.userprofiledataserv.domain.vo.SubscriptionPlan;
 import com.riftco.userprofiledataserv.domain.vo.TenantId;
 import com.riftco.userprofiledataserv.domain.vo.TenantName;
 import com.riftco.userprofiledataserv.domain.vo.TenantStatus;
@@ -21,7 +23,9 @@ public class TenantCreatedEvent implements DomainEvent {
     private TenantId tenantId;
     private TenantName name;
     private TenantStatus status;
+    private TenantType type;
     private String description;
+    private SubscriptionPlan subscriptionPlan;
     private Instant occurredAt;
 
     @Override

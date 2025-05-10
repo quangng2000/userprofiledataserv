@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Event that captures when a user's name is changed.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,9 +18,7 @@ public class UserNameChangedEvent implements DomainEvent {
     public static final String TYPE = "user.name.changed";
 
     private UUID uuid;
-
     private String name;
-
     private Instant occurredAt;
 
     @Override

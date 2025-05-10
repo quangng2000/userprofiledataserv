@@ -1,5 +1,14 @@
 package com.riftco.userprofiledataserv.domain.common;
 
-// Classes implements this class MUST implement equal and hashcode entire their property
-public abstract class ValueObject {
+// Implementations MUST provide equals and hashCode methods for proper value object semantics
+public interface ValueObject {
+    // Value objects are identified by their attributes, not by identity
+    @Override
+    boolean equals(Object o);
+    
+    @Override
+    int hashCode();
+    
+    @Override
+    String toString();
 }

@@ -1,1 +1,25 @@
+spring:
+  data:
+    mongodb:
+      database: userprofiledb
+      host: localhost
+      port: 27017
+      # Uncomment and configure these for production or other environments as needed
+      # authentication-database: admin
+      # username: mongouser
+      # password: mongopassword
+      # uri: mongodb://localhost:27017/userprofiledb
 
+server:
+  port: 8080
+
+app:
+  jwt:
+    # This should be changed in production and ideally externalized
+    secret: secureKeyForJWTSigning1234567890123456789012345678901234
+    expiration-ms: 3600000  # 1 hour
+
+logging:
+  level:
+    com.riftco.userprofiledataserv: INFO
+    org.springframework.data.mongodb: INFO
