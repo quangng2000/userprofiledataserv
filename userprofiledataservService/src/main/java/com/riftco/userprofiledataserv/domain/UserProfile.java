@@ -163,6 +163,73 @@ public final class UserProfile extends AggregateRoot {
         return this;
     }
 
+    /**
+     * Creates a new user profile with all possible attributes in a single event.
+     * This method is preferred for initial profile creation to avoid multiple change events.
+     * 
+     * @param userId The user ID
+     * @param tenantId The tenant ID
+     * @param displayName The display name
+     * @param avatarUrl The avatar URL (can be null)
+     * @param biography The biography (can be null)
+     * @param jobTitle The job title (can be null)
+     * @param department The department (can be null)
+     * @param location The location (can be null)
+     * @param linkedInUrl The LinkedIn URL (can be null)
+     * @param twitterUrl The Twitter URL (can be null)
+     * @param githubUrl The GitHub URL (can be null)
+     * @return A new user profile instance with all provided attributes
+     */
+    public UserProfile createCompleteProfile(
+            UserId userId,
+            TenantId tenantId,
+            DisplayName displayName,
+            AvatarUrl avatarUrl,
+            Biography biography,
+            JobTitle jobTitle,
+            Department department,
+            Location location,
+            LinkedInUrl linkedInUrl,
+            TwitterUrl twitterUrl,
+            GitHubUrl githubUrl) {
+        
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+        if (tenantId == null) {
+            throw new IllegalArgumentException("Tenant ID cannot be null");
+        }
+        if (displayName == null) {
+            throw new IllegalArgumentException("Display name cannot be null");
+        }
+        
+        // Use provided values or empty values if null
+        AvatarUrl finalAvatarUrl = avatarUrl != null ? avatarUrl : AvatarUrl.empty();
+        Biography finalBiography = biography != null ? biography : Biography.empty();
+        JobTitle finalJobTitle = jobTitle != null ? jobTitle : JobTitle.empty();
+        Department finalDepartment = department != null ? department : Department.empty();
+        Location finalLocation = location != null ? location : Location.empty();
+        LinkedInUrl finalLinkedInUrl = linkedInUrl != null ? linkedInUrl : LinkedInUrl.empty();
+        TwitterUrl finalTwitterUrl = twitterUrl != null ? twitterUrl : TwitterUrl.empty();
+        GitHubUrl finalGithubUrl = githubUrl != null ? githubUrl : GitHubUrl.empty();
+        
+        return this.applyEvent(new UserProfileCreatedEvent(
+                UUID.randomUUID(),
+                userId,
+                tenantId,
+                displayName,
+                finalAvatarUrl,
+                finalBiography,
+                finalJobTitle,
+                finalDepartment,
+                finalLocation,
+                finalLinkedInUrl,
+                finalTwitterUrl,
+                finalGithubUrl,
+                Instant.now()
+        ));
+    }
+
     public static UserProfile from(UUID uuid, List<DomainEvent> history) {
         return history
                 .stream()
@@ -209,13 +276,13 @@ public final class UserProfile extends AggregateRoot {
         this.tenantId = event.getTenantId();
         this.displayName = event.getDisplayName();
         this.avatarUrl = event.getAvatarUrl();
-        this.biography = Biography.empty();
-        this.jobTitle = JobTitle.empty();
-        this.department = Department.empty();
-        this.location = Location.empty();
-        this.linkedInUrl = LinkedInUrl.empty();
-        this.twitterUrl = TwitterUrl.empty();
-        this.githubUrl = GitHubUrl.empty();
+        this.biography = event.getBiography() != null ? event.getBiography() : Biography.empty();
+        this.jobTitle = event.getJobTitle() != null ? event.getJobTitle() : JobTitle.empty();
+        this.department = event.getDepartment() != null ? event.getDepartment() : Department.empty();
+        this.location = event.getLocation() != null ? event.getLocation() : Location.empty();
+        this.linkedInUrl = event.getLinkedInUrl() != null ? event.getLinkedInUrl() : LinkedInUrl.empty();
+        this.twitterUrl = event.getTwitterUrl() != null ? event.getTwitterUrl() : TwitterUrl.empty();
+        this.githubUrl = event.getGithubUrl() != null ? event.getGithubUrl() : GitHubUrl.empty();
         this.createdAt = event.getOccurredAt();
         this.updatedAt = event.getOccurredAt();
         return this;

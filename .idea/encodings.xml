@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/userprofiledataservAPI/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/userprofiledataservAPI/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/userprofiledataservFunctionalTest/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/userprofiledataservFunctionalTest/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/userprofiledataservService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/userprofiledataservService/target/generated-sources/openapi/src/gen/java/main" charset="UTF-8" />
   </component>

@@ -8,13 +8,13 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=user-management
+      - MONGO_INITDB_DATABASE=userprofiledb
     volumes:
       - mongodb_data:/data/db
     networks:
       - app-network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/user-management --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/userprofiledb --quiet
       interval: 10s
       timeout: 10s
       retries: 5

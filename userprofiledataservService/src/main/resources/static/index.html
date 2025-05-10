@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiftCo User Profile Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">RiftCo User Profile Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="home">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Tenant
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-page="create-tenant">Create Tenant</a></li>
+                            <li><a class="dropdown-item" href="#" data-page="modify-tenant">Modify Tenant</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            User
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-page="create-user">Create User</a></li>
+                            <li><a class="dropdown-item" href="#" data-page="modify-user">Modify User</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Profile
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-page="create-profile">Create Profile</a></li>
+                            <li><a class="dropdown-item" href="#" data-page="modify-profile">Modify Profile</a></li>
+                            <li><a class="dropdown-item" href="#" data-page="view-profile">View Profile</a></li>
+                            <li><a class="dropdown-item" href="#" data-page="list-profiles">List Profiles</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Alert for displaying messages -->
+        <div id="alert-container"></div>
+        
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="jumbotron">
+                <h1 class="display-4">Welcome to RiftCo User Profile Management</h1>
+                <p class="lead">This interface allows you to test and interact with the User Profile API.</p>
+                <hr class="my-4">
+                <p>Use the navigation menu to create, view, and list user profiles.</p>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Create a New Tenant</h5>
+                            <p class="card-text">Add a new tenant organization to the system.</p>
+                            <a href="#" class="btn btn-primary" data-page="create-tenant">Create Tenant</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Create a New User</h5>
+                            <p class="card-text">Add a new user to a tenant.</p>
+                            <a href="#" class="btn btn-primary" data-page="create-user">Create User</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Create a User Profile</h5>
+                            <p class="card-text">Add a new user profile with personal and job details.</p>
+                            <a href="#" class="btn btn-primary" data-page="create-profile">Create Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">View Existing Profiles</h5>
+                            <p class="card-text">Lookup specific profiles or browse all profiles.</p>
+                            <a href="#" class="btn btn-primary" data-page="view-profile">View Profiles</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">List Profiles by Tenant</h5>
+                            <p class="card-text">See all profiles for a specific tenant.</p>
+                            <a href="#" class="btn btn-primary" data-page="list-profiles">List Profiles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Create Tenant Page -->
+        <div id="create-tenant" class="page">
+            <h2>Create New Tenant</h2>
+            <form id="create-tenant-form">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="tenantName" class="form-label">Tenant Name*</label>
+                            <input type="text" class="form-control" id="tenantName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tenantDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="tenantDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tenantType" class="form-label">Tenant Type*</label>
+                            <select class="form-select" id="tenantType" required>
+                                <option value="">Select Tenant Type</option>
+                                <option value="PERSON">Person (Individual with single user)</option>
+                                <option value="ORGANIZATION">Organization (Multi-user tenant)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="tenantStatus" class="form-label">Status</label>
+                            <select class="form-select" id="tenantStatus">
+                                <option value="ACTIVE">Active</option>
+                                <option value="INACTIVE">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subscriptionPlanType" class="form-label">Subscription Plan</label>
+                            <input type="text" class="form-control" id="subscriptionPlanType" placeholder="e.g., Basic, Premium, Enterprise">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Tenant</button>
+            </form>
+        </div>
+        
+        <!-- Create User Page -->
+        <div id="create-user" class="page">
+            <h2>Create New User</h2>
+            <form id="create-user-form">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="userTenantId" class="form-label">Tenant ID*</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="userTenantId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="userTenantId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Name*</label>
+                            <input type="text" class="form-control" id="userName" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">Email*</label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userContactNumber" class="form-label">Contact Number*</label>
+                            <input type="text" class="form-control" id="userContactNumber" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create User</button>
+            </form>
+        </div>
+
+        <!-- Create Profile Page -->
+        <div id="create-profile" class="page">
+            <h2>Create User Profile</h2>
+            <form id="create-profile-form">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="userId" class="form-label">User ID*</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="userId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="userId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tenantId" class="form-label">Tenant ID*</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="tenantId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="tenantId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="displayName" class="form-label">Display Name*</label>
+                            <input type="text" class="form-control" id="displayName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="avatarUrl" class="form-label">Avatar URL</label>
+                            <input type="url" class="form-control" id="avatarUrl">
+                        </div>
+                        <div class="mb-3">
+                            <label for="biography" class="form-label">Biography</label>
+                            <textarea class="form-control" id="biography" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="jobTitle" class="form-label">Job Title</label>
+                            <input type="text" class="form-control" id="jobTitle">
+                        </div>
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department">
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location">
+                        </div>
+                        <div class="mb-3">
+                            <label for="linkedInUrl" class="form-label">LinkedIn URL</label>
+                            <input type="url" class="form-control" id="linkedInUrl">
+                        </div>
+                        <div class="mb-3">
+                            <label for="twitterUrl" class="form-label">Twitter URL</label>
+                            <input type="url" class="form-control" id="twitterUrl">
+                        </div>
+                        <div class="mb-3">
+                            <label for="gitHubUrl" class="form-label">GitHub URL</label>
+                            <input type="url" class="form-control" id="gitHubUrl">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Profile</button>
+            </form>
+        </div>
+        
+        <!-- View Profile Page -->
+        <div id="view-profile" class="page">
+            <h2>View User Profile</h2>
+            <div class="card mb-4">
+                <div class="card-header">Lookup Options</div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="viewProfileTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#byId">By Profile ID</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#byUserAndTenant">By User ID and Tenant ID</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="byId">
+                            <form id="view-profile-form">
+                                <div class="mb-3">
+                                    <label for="profileId" class="form-label">Profile ID</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="profileId" required placeholder="UUID format">
+                                        <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="profileId">Generate UUID</button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">View Profile</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="byUserAndTenant">
+                            <form id="view-profile-by-user-tenant-form">
+                                <div class="mb-3">
+                                    <label for="viewUserId" class="form-label">User ID</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="viewUserId" required placeholder="UUID format">
+                                        <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="viewUserId">Generate UUID</button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="viewTenantId" class="form-label">Tenant ID</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="viewTenantId" required placeholder="UUID format">
+                                        <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="viewTenantId">Generate UUID</button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">View Profile</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="profile-details" class="d-none">
+                <h3>Profile Details</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div id="profile-data"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- List Profiles Page -->
+        <div id="list-profiles" class="page">
+            <h2>List User Profiles</h2>
+            <div class="card mb-4">
+                <div class="card-header">Filter by Tenant</div>
+                <div class="card-body">
+                    <form id="list-profiles-form">
+                        <div class="mb-3">
+                            <label for="filterTenantId" class="form-label">Tenant ID</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="filterTenantId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="filterTenantId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">List Profiles</button>
+                    </form>
+                </div>
+            </div>
+            <div class="table-responsive mt-4">
+                <table class="table table-striped table-hover d-none" id="profiles-table">
+                    <thead>
+                        <tr>
+                            <th>Profile ID</th>
+                            <th>User ID</th>
+                            <th>Display Name</th>
+                            <th>Job Title</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profiles-list">
+                        <!-- Profiles will be added here -->
+                    </tbody>
+                </table>
+                <div id="no-profiles-message" class="alert alert-info d-none">
+                    No profiles found for this tenant.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modify Tenant Page -->
+        <div id="modify-tenant" class="page">
+            <h2>Modify Tenant</h2>
+            <div class="card mb-4">
+                <div class="card-header">Lookup Tenant</div>
+                <div class="card-body">
+                    <form id="lookup-tenant-form">
+                        <div class="mb-3">
+                            <label for="lookupTenantId" class="form-label">Tenant ID</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="lookupTenantId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="lookupTenantId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Find Tenant</button>
+                    </form>
+                </div>
+            </div>
+            <div id="modify-tenant-form-container" class="d-none">
+                <h3>Update Tenant Details</h3>
+                <form id="modify-tenant-form">
+                    <input type="hidden" id="modifyTenantId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modifyTenantName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="modifyTenantName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyTenantDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="modifyTenantDescription" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modifyTenantStatus" class="form-label">Status</label>
+                                <select class="form-select" id="modifyTenantStatus">
+                                    <option value="">No change</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifySubscriptionPlanType" class="form-label">Subscription Plan</label>
+                                <input type="text" class="form-control" id="modifySubscriptionPlanType">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Tenant</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Modify User Page -->
+        <div id="modify-user" class="page">
+            <h2>Modify User</h2>
+            <div class="card mb-4">
+                <div class="card-header">Lookup User</div>
+                <div class="card-body">
+                    <form id="lookup-user-form">
+                        <div class="mb-3">
+                            <label for="lookupUserId" class="form-label">User ID</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="lookupUserId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="lookupUserId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Find User</button>
+                    </form>
+                </div>
+            </div>
+            <div id="modify-user-form-container" class="d-none">
+                <h3>Update User Details</h3>
+                <form id="modify-user-form">
+                    <input type="hidden" id="modifyUserId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modifyUserName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="modifyUserName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyUserEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="modifyUserEmail">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modifyUserContactNumber" class="form-label">Contact Number</label>
+                                <input type="text" class="form-control" id="modifyUserContactNumber">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyUserState" class="form-label">State</label>
+                                <select class="form-select" id="modifyUserState">
+                                    <option value="">No change</option>
+                                    <option value="ACTIVATED">Activated</option>
+                                    <option value="DEACTIVATED">Deactivated</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Modify Profile Page -->
+        <div id="modify-profile" class="page">
+            <h2>Modify User Profile</h2>
+            <div class="card mb-4">
+                <div class="card-header">Lookup Profile</div>
+                <div class="card-body">
+                    <form id="lookup-profile-form">
+                        <div class="mb-3">
+                            <label for="lookupProfileId" class="form-label">Profile ID</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="lookupProfileId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="lookupProfileId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Find Profile</button>
+                    </form>
+                </div>
+            </div>
+            <div id="modify-profile-form-container" class="d-none">
+                <h3>Update Profile Details</h3>
+                <form id="modify-profile-form">
+                    <input type="hidden" id="modifyProfileId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modifyDisplayName" class="form-label">Display Name</label>
+                                <input type="text" class="form-control" id="modifyDisplayName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyAvatarUrl" class="form-label">Avatar URL</label>
+                                <input type="url" class="form-control" id="modifyAvatarUrl">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyBiography" class="form-label">Biography</label>
+                                <textarea class="form-control" id="modifyBiography" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modifyJobTitle" class="form-label">Job Title</label>
+                                <input type="text" class="form-control" id="modifyJobTitle">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyDepartment" class="form-label">Department</label>
+                                <input type="text" class="form-control" id="modifyDepartment">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyLocation" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="modifyLocation">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyLinkedInUrl" class="form-label">LinkedIn URL</label>
+                                <input type="url" class="form-control" id="modifyLinkedInUrl">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyTwitterUrl" class="form-label">Twitter URL</label>
+                                <input type="url" class="form-control" id="modifyTwitterUrl">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modifyGitHubUrl" class="form-label">GitHub URL</label>
+                                <input type="url" class="form-control" id="modifyGitHubUrl">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">RiftCo User Profile Data Service 2025</span>
+            <span class="text-muted">RiftCo User Profile Data Service © 2025</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

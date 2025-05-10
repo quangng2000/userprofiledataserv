@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 
-@Component
+@Component("tenantUserEventSerializer")
 public class EventSerializer {
     private final ObjectMapper objectMapper;
 

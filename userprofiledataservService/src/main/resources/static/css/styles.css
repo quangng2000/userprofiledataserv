@@ -1,0 +1,86 @@
+/* RiftCo User Profile Management Custom Styles */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Page display management */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* Card styling */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f1f5f9;
+    border-bottom: none;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* Form controls */
+.form-label {
+    font-weight: 500;
+}
+
+.input-group .btn {
+    z-index: 0;
+}
+
+/* Profile details styling */
+#profile-data {
+    padding: 10px;
+}
+
+#profile-data dl {
+    margin-bottom: 0;
+}
+
+#profile-data dt {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Table styling */
+.table th {
+    background-color: #f1f5f9;
+    border-bottom: none;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Animation for UUID generation feedback */
+.bg-light {
+    transition: background-color 0.3s ease;
+}

@@ -74,26 +74,19 @@ public class CreateUserProfileService implements CreateUserProfileUseCase {
             GitHubUrl gitHubUrl = command.getGitHubUrl() != null ?
                     GitHubUrl.of(command.getGitHubUrl()) : null;
             
-            // Create user profile domain object
-            UserProfile userProfile = NONE.createBasicProfile(
+            // Create user profile domain object with all attributes in a single event
+            UserProfile userProfile = NONE.createCompleteProfile(
                     userId,
                     tenantId,
                     displayName,
                     avatarUrl,
-                    biography);
-            
-            // Add additional information if provided
-            if (jobTitle != null || department != null) {
-                userProfile.changeJobInfo(jobTitle, department);
-            }
-            
-            if (location != null) {
-                userProfile.changeLocation(location);
-            }
-            
-            if (linkedInUrl != null || twitterUrl != null || gitHubUrl != null) {
-                userProfile.updateSocialLinks(linkedInUrl, twitterUrl, gitHubUrl);
-            }
+                    biography,
+                    jobTitle,
+                    department,
+                    location,
+                    linkedInUrl,
+                    twitterUrl,
+                    gitHubUrl);
             
             // Persist to event store
             this.sourceUserProfilePort.source(userProfile);

@@ -9,15 +9,31 @@ spring:
       # username: mongouser
       # password: mongopassword
       # uri: mongodb://localhost:27017/userprofiledb
+  
+  # Kafka configuration
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+          auto-create-topics: true
+      bindings:
+        tenant-events-out:
+          destination: tenant-events
+          content-type: application/json
+        user-events-out:
+          destination: user-events
+          content-type: application/json
+        user-profile-events-out:
+          destination: user-profile-events
+          content-type: application/json
+        tenant-user-events-out:
+          destination: tenant-user-events
+          content-type: application/json
 
 server:
   port: 8080
 
-app:
-  jwt:
-    # This should be changed in production and ideally externalized
-    secret: secureKeyForJWTSigning1234567890123456789012345678901234
-    expiration-ms: 3600000  # 1 hour
 
 logging:
   level:

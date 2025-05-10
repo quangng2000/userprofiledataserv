@@ -24,10 +24,17 @@ public abstract class BaseEventToKafkaAdapter {
                 .build();
         try {
             // Send directly to the specific topic using StreamBridge
-            streamBridge.send(topicName, message);
-            log.info("Sent event {} to topic: {}", event.getClass().getSimpleName(), topicName);
+            boolean result = streamBridge.send(topicName, message);
+            if (result) {
+                log.info("KAFKA SUCCESS: Event {} with ID {} successfully sent to topic: {}", 
+                         event.getClass().getSimpleName(), event.uuid(), topicName);
+            } else {
+                log.warn("KAFKA WARNING: Event {} with ID {} may not have been sent to topic: {}", 
+                          event.getClass().getSimpleName(), event.uuid(), topicName);
+            }
         } catch (Exception e) {
-            log.error("Failed to send event to topic {}: {}", topicName, e.getMessage(), e);
+            log.error("KAFKA ERROR: Failed to send event {} with ID {} to topic {}: {}", 
+                      event.getClass().getSimpleName(), event.uuid(), topicName, e.getMessage(), e);
         }
     }
 }

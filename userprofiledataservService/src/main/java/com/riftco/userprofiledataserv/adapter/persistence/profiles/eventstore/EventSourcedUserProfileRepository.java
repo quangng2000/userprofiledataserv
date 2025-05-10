@@ -4,7 +4,7 @@ import com.riftco.userprofiledataserv.adapter.persistence.profiles.UserProfileRe
 import com.riftco.userprofiledataserv.application.port.out.SendUserProfileEventToBroker;
 import com.riftco.userprofiledataserv.domain.UserProfile;
 import com.riftco.userprofiledataserv.domain.event.DomainEvent;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -13,12 +13,20 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class EventSourcedUserProfileRepository implements UserProfileRepository {
 
     private final EventStore eventStore;
     private final EventSerializer eventSerializer;
     private final SendUserProfileEventToBroker sendUserProfileEventToBroker;
+    
+    public EventSourcedUserProfileRepository(
+            @Qualifier("profileEventStore") EventStore eventStore,
+            @Qualifier("profileEventSerializer") EventSerializer eventSerializer,
+            SendUserProfileEventToBroker sendUserProfileEventToBroker) {
+        this.eventStore = eventStore;
+        this.eventSerializer = eventSerializer;
+        this.sendUserProfileEventToBroker = sendUserProfileEventToBroker;
+    }
 
     @Override
     public UserProfile save(UserProfile aggregate) {
