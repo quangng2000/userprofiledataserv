@@ -1,6 +1,7 @@
 package com.riftco.userprofiledataserv.adapter.persistence.profiles.eventstore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -69,7 +70,28 @@ public class EventSerializer {
         try {
             return objectMapper.readValue(eventDescriptor.getBody(), DomainEvent.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // Log the error with the raw JSON payload for debugging
+            System.err.println("Error deserializing event: " + e.getMessage());
+            System.err.println("Event JSON: " + eventDescriptor.getBody());
+            System.err.println("Event type from descriptor: " + eventDescriptor.getType());
+            e.printStackTrace();
+            
+            // Try an alternative approach if standard deserialization fails
+            try {
+                // First read as JsonNode to inspect the structure
+                JsonNode root = objectMapper.readTree(eventDescriptor.getBody());
+                
+                // Get the event type from the JSON
+                String eventType = root.has("type") ? root.get("type").asText() : eventDescriptor.getType();
+                
+                System.out.println("Attempting alternative deserialization for event type: " + eventType);
+                
+                // Use the type information to find the correct class and deserialize
+                return objectMapper.treeToValue(root, DomainEvent.class);
+            } catch (Exception fallbackException) {
+                fallbackException.printStackTrace();
+                throw new RuntimeException("Failed to deserialize event after multiple attempts: " + fallbackException.getMessage(), fallbackException);
+            }
         }
     }
 }

@@ -51,6 +51,40 @@ public final class SubscriptionPlan implements ValueObject {
         return new SubscriptionPlan(planType, maxUsers, hasAdvancedFeatures, hasPrioritySuppport);
     }
 
+    /**
+     * Factory method for creating a SubscriptionPlan from a string representation.
+     * This method is required for proper deserialization by the ValueObjectDeserializer.
+     *
+     * @param value The string representation of the plan type (case-insensitive)
+     * @return The corresponding SubscriptionPlan
+     * @throws IllegalArgumentException if the value cannot be converted to a valid plan
+     */
+    public static SubscriptionPlan of(String value) {
+        try {
+            PlanType planType = PlanType.valueOf(value.toUpperCase());
+            switch (planType) {
+                case FREE:
+                    return freePlan();
+                case BASIC:
+                    return basicPlan();
+                case PROFESSIONAL:
+                    return professionalPlan();
+                case ENTERPRISE:
+                    return enterprisePlan();
+                default:
+                    throw new IllegalArgumentException("Unknown plan type: " + value);
+            }
+        } catch (IllegalArgumentException e) {
+            // Fallback for older serialized data that might use different formats
+            if (value.equalsIgnoreCase("FREE")) return freePlan();
+            if (value.equalsIgnoreCase("BASIC")) return basicPlan();
+            if (value.equalsIgnoreCase("PROFESSIONAL")) return professionalPlan();
+            if (value.equalsIgnoreCase("ENTERPRISE")) return enterprisePlan();
+            
+            throw new IllegalArgumentException("Cannot convert value to SubscriptionPlan: " + value);
+        }
+    }
+
     @Override
     public String toString() {
         return planType.name();

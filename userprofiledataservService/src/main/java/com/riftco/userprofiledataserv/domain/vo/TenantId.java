@@ -30,4 +30,19 @@ public final class TenantId implements ValueObject {
     public String toString() {
         return value;
     }
+
+/* <<<<<<<<<<<<<<  ✨ Windsurf Command ⭐ >>>>>>>>>>>>>>>> */
+    /**
+     * Returns the tenant ID as a {@link UUID}.
+     *
+     * @return the tenant ID as a UUID
+     */
+/* <<<<<<<<<<  d852acbe-c422-444a-a9b4-f2f3e3fb1b12  >>>>>>>>>>> */
+    public UUID toUUID() {
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("Invalid UUID format for Tenant ID: " + value, e);
+        }
+    }
 }

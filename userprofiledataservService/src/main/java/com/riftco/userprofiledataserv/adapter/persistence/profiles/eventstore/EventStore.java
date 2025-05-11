@@ -21,6 +21,7 @@ public interface EventStore extends MongoRepository<EventStream, String> {
     }
 
     default List<EventDescriptor> getEventsForAggregate(UUID aggregateId) {
+
         return this.findByAggregateUUID(aggregateId)
                 .map(EventStream::getEvents)
                 .orElse(emptyList());

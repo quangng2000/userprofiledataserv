@@ -30,4 +30,20 @@ public final class UserId implements ValueObject {
     public String toString() {
         return value;
     }
+
+/* <<<<<<<<<<<<<<  ✨ Windsurf Command ⭐ >>>>>>>>>>>>>>>> */
+    /**
+     * Returns the user ID as a {@link UUID}.
+     *
+     * @return the user ID as a UUID
+     */
+/* <<<<<<<<<<  0a0e4315-f7cd-4154-a6ac-661a6bc98fa4  >>>>>>>>>>> */
+    public UUID toUUID() {
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("Invalid UUID format: " + value, e);
+        }
+
+    }
 }

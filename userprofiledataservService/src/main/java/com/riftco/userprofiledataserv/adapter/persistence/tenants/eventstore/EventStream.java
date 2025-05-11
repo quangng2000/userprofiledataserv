@@ -3,6 +3,7 @@ package com.riftco.userprofiledataserv.adapter.persistence.tenants.eventstore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.UUID;
 class EventStream {
 
     @Id
+    @Indexed(unique = true)
     private String id;
 
     @Getter

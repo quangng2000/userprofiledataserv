@@ -37,10 +37,10 @@ public final class Tenant extends AggregateRoot {
         if (subscriptionPlan == null) {
             subscriptionPlan = SubscriptionPlan.freePlan(); // Default to free plan if not specified
         }
-        
+        TenantId uuid = TenantId.generate();
         return this.applyEvent(new TenantCreatedEvent(
-                UUID.randomUUID(),
-                tenantId,
+                uuid.toUUID(),
+                uuid,
                 name,
                 TenantStatus.ACTIVE,
                 type,

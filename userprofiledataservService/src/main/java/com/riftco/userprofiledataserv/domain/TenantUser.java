@@ -60,7 +60,7 @@ public final class TenantUser extends AggregateRoot {
         }
 
         return this.applyEvent(new TenantUserCreatedEvent(
-                UUID.randomUUID(),
+                tenant.getUUID(),
                 tenant.getTenantId(),
                 userId,
                 role,

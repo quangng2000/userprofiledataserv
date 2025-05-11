@@ -61,9 +61,9 @@ public final class UserProfile extends AggregateRoot {
         if (tenantId == null) {
             throw new IllegalArgumentException("Tenant ID cannot be null");
         }
-        
+
         return this.applyEvent(new UserProfileCreatedEvent(
-                UUID.randomUUID(),
+                userId.toUUID(),
                 userId,
                 tenantId,
                 displayName,

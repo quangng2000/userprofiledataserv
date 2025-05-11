@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 class EventStream {
 
     @Id
+    @Indexed(unique = true)
     private String id;
 
     @Getter
-    @Indexed(unique = true)
     private UUID aggregateUUID;
 
     @Version

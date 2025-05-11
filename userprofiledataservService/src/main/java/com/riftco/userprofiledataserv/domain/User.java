@@ -59,10 +59,10 @@ public final class User extends AggregateRoot {
         if (contactNumber == null) {
             throw new IllegalArgumentException("Contact number cannot be null");
         }
-        
+        UserId uuid = UserId.generate();
         return this.applyEvent(new UserCreatedEvent(
-                UUID.randomUUID(),
-                UserId.generate(),
+                uuid.toUUID(),
+                uuid,
                 tenantId,
                 UserState.ACTIVATED,
                 name,
