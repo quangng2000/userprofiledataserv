@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Document(collection = "users_event_streams")
+@Document(collection = "users_event")
 class EventStream {
 
     @Id
