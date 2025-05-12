@@ -101,11 +101,7 @@ function initForms() {
         modifyTenantForm.addEventListener('submit', handleModifyTenant);
     }
     
-    // Lookup User Form
-    const lookupUserForm = document.getElementById('lookup-user-form');
-    if (lookupUserForm) {
-        lookupUserForm.addEventListener('submit', handleLookupUser);
-    }
+    // Removed lookup user form
     
     // Modify User Form
     const modifyUserForm = document.getElementById('modify-user-form');
@@ -113,16 +109,24 @@ function initForms() {
         modifyUserForm.addEventListener('submit', handleModifyUser);
     }
     
-    // Lookup Profile Form
-    const lookupProfileForm = document.getElementById('lookup-profile-form');
-    if (lookupProfileForm) {
-        lookupProfileForm.addEventListener('submit', handleLookupProfile);
-    }
+    // Removed lookup profile form
     
     // Modify Profile Form
     const modifyProfileForm = document.getElementById('modify-profile-form');
     if (modifyProfileForm) {
         modifyProfileForm.addEventListener('submit', handleModifyProfile);
+    }
+    
+    // Create Tenant-User Form
+    const createTenantUserForm = document.getElementById('create-tenant-user-form');
+    if (createTenantUserForm) {
+        createTenantUserForm.addEventListener('submit', handleCreateTenantUser);
+    }
+    
+    // Modify Tenant-User Form
+    const modifyTenantUserForm = document.getElementById('modify-tenant-user-form');
+    if (modifyTenantUserForm) {
+        modifyTenantUserForm.addEventListener('submit', handleModifyTenantUser);
     }
 }
 
@@ -500,50 +504,7 @@ function handleModifyTenant(e) {
     });
 }
 
-/**
- * Handle lookup user form submission
- */
-function handleLookupUser(e) {
-    e.preventDefault();
-    
-    const userId = document.getElementById('lookupUserId').value;
-    
-    // Send API request to get user details
-    fetch(`/v1/users/${userId}`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('User not found');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Store user ID in hidden field
-        document.getElementById('modifyUserId').value = userId;
-        
-        // Populate form with user data
-        document.getElementById('modifyUserName').value = data.name || '';
-        document.getElementById('modifyUserEmail').value = data.email || '';
-        document.getElementById('modifyUserContactNumber').value = data.contactNumber || '';
-        document.getElementById('modifyUserState').value = data.state || '';
-        
-        // Show the form container
-        document.getElementById('modify-user-form-container').classList.remove('d-none');
-        
-        showAlert('success', 'User found! You can now modify their details.');
-    })
-    .catch(error => {
-        console.error('Error fetching user:', error);
-        showAlert('danger', 'Error fetching user: ' + error.message);
-        
-        // Hide the form container
-        document.getElementById('modify-user-form-container').classList.add('d-none');
-    });
-}
+// Removed handleLookupUser function - direct modification now used
 
 /**
  * Handle modify user form submission
@@ -605,55 +566,7 @@ function handleModifyUser(e) {
     });
 }
 
-/**
- * Handle lookup profile form submission
- */
-function handleLookupProfile(e) {
-    e.preventDefault();
-    
-    const profileId = document.getElementById('lookupProfileId').value;
-    
-    // Send API request to get profile details
-    fetch(`/v1/profiles/${profileId}`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Profile not found');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Store profile ID in hidden field
-        document.getElementById('modifyProfileId').value = profileId;
-        
-        // Populate form with profile data
-        document.getElementById('modifyDisplayName').value = data.displayName || '';
-        document.getElementById('modifyAvatarUrl').value = data.avatarUrl || '';
-        document.getElementById('modifyBiography').value = data.biography || '';
-        document.getElementById('modifyJobTitle').value = data.jobTitle || '';
-        document.getElementById('modifyDepartment').value = data.department || '';
-        document.getElementById('modifyLocation').value = data.location || '';
-        document.getElementById('modifyLinkedInUrl').value = data.linkedInUrl || '';
-        document.getElementById('modifyTwitterUrl').value = data.twitterUrl || '';
-        document.getElementById('modifyGitHubUrl').value = data.gitHubUrl || '';
-        
-        // Show the form container
-        document.getElementById('modify-profile-form-container').classList.remove('d-none');
-        
-        showAlert('success', 'Profile found! You can now modify its details.');
-    })
-    .catch(error => {
-        console.error('Error fetching profile:', error);
-        showAlert('danger', 'Error fetching profile: ' + error.message);
-        
-        // Hide the form container
-        document.getElementById('modify-profile-form-container').classList.add('d-none');
-    });
-}
+// Removed handleLookupProfile function - direct modification now used
 
 /**
  * Handle modify profile form submission
@@ -737,6 +650,130 @@ function handleModifyProfile(e) {
     .catch(error => {
         console.error('Error updating profile:', error);
         showAlert('danger', 'Error updating profile: ' + error.message);
+    });
+}
+
+/**
+ * Handle create tenant-user association form submission
+ */
+function handleCreateTenantUser(e) {
+    e.preventDefault();
+    
+    // Get form values
+    const tenantId = document.getElementById('tuTenantId').value;
+    const userId = document.getElementById('tuUserId').value;
+    
+    // Get selected roles
+    const roles = [];
+    if (document.getElementById('roleTenantAdmin').checked) {
+        roles.push('TENANT_ADMIN');
+    }
+    if (document.getElementById('roleTenantManager').checked) {
+        roles.push('TENANT_MANAGER');
+    }
+    if (document.getElementById('roleTenantUser').checked) {
+        roles.push('TENANT_USER');
+    }
+    if (document.getElementById('roleSystemAdmin').checked) {
+        roles.push('SYSTEM_ADMIN');
+    }
+    
+    // Validate at least one role is selected
+    if (roles.length === 0) {
+        showAlert('warning', 'Please select at least one role.');
+        return;
+    }
+    
+    // Create tenant-user data object
+    const tenantUserData = {
+        tenantId: tenantId,
+        userId: userId,
+        roles: roles
+    };
+    
+    // Send API request
+    fetch('/v1/tenant-users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tenantUserData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Show success message
+        showAlert('success', `Tenant-User association created successfully!`);
+        
+        // Reset form
+        document.getElementById('create-tenant-user-form').reset();
+        // Keep the TENANT_USER role checked by default
+        document.getElementById('roleTenantUser').checked = true;
+    })
+    .catch(error => {
+        console.error('Error creating tenant-user association:', error);
+        showAlert('danger', 'Error creating tenant-user association: ' + error.message);
+    });
+}
+
+/**
+ * Handle modify tenant-user association form submission
+ */
+function handleModifyTenantUser(e) {
+    e.preventDefault();
+    
+    const associationId = document.getElementById('modifyTenantUserId').value;
+    
+    // Get selected roles
+    const roles = [];
+    if (document.getElementById('modifyRoleTenantAdmin').checked) {
+        roles.push('TENANT_ADMIN');
+    }
+    if (document.getElementById('modifyRoleTenantManager').checked) {
+        roles.push('TENANT_MANAGER');
+    }
+    if (document.getElementById('modifyRoleTenantUser').checked) {
+        roles.push('TENANT_USER');
+    }
+    if (document.getElementById('modifyRoleSystemAdmin').checked) {
+        roles.push('SYSTEM_ADMIN');
+    }
+    
+    // Build request body with only non-empty fields
+    const requestBody = {};
+    
+    if (roles.length > 0) {
+        requestBody.roles = roles;
+    } else {
+        showAlert('warning', 'Please select at least one role.');
+        return;
+    }
+    
+    // Send API request
+    fetch(`/v1/tenant-users/${associationId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update tenant-user association');
+        }
+        return response.json();
+    })
+    .then(data => {
+        showAlert('success', 'Tenant-User association updated successfully!');
+        document.getElementById('modify-tenant-user-form').reset();
+    })
+    .catch(error => {
+        console.error('Error updating tenant-user association:', error);
+        showAlert('danger', 'Error updating tenant-user association: ' + error.message);
     });
 }
 

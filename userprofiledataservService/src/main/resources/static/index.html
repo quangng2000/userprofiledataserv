@@ -48,6 +48,15 @@
                             <li><a class="dropdown-item" href="#" data-page="list-profiles">List Profiles</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Tenant-User
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-page="create-tenant-user">Create Association</a></li>
+                            <li><a class="dropdown-item" href="#" data-page="modify-tenant-user">Modify Association</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -409,52 +418,45 @@
         <div id="modify-user" class="page">
             <h2>Modify User</h2>
             <div class="card mb-4">
-                <div class="card-header">Lookup User</div>
+                <div class="card-header">Update User Details</div>
                 <div class="card-body">
-                    <form id="lookup-user-form">
+                    <form id="modify-user-form">
                         <div class="mb-3">
-                            <label for="lookupUserId" class="form-label">User ID</label>
+                            <label for="modifyUserId" class="form-label">User ID*</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="lookupUserId" required placeholder="UUID format">
-                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="lookupUserId">Generate UUID</button>
+                                <input type="text" class="form-control" id="modifyUserId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="modifyUserId">Generate UUID</button>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Find User</button>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="modifyUserName" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="modifyUserName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyUserEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="modifyUserEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="modifyUserContactNumber" class="form-label">Contact Number</label>
+                                    <input type="text" class="form-control" id="modifyUserContactNumber">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyUserState" class="form-label">State</label>
+                                    <select class="form-select" id="modifyUserState">
+                                        <option value="">No change</option>
+                                        <option value="ACTIVATED">Activated</option>
+                                        <option value="DEACTIVATED">Deactivated</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update User</button>
                     </form>
                 </div>
-            </div>
-            <div id="modify-user-form-container" class="d-none">
-                <h3>Update User Details</h3>
-                <form id="modify-user-form">
-                    <input type="hidden" id="modifyUserId">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="modifyUserName" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="modifyUserName">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyUserEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="modifyUserEmail">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="modifyUserContactNumber" class="form-label">Contact Number</label>
-                                <input type="text" class="form-control" id="modifyUserContactNumber">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyUserState" class="form-label">State</label>
-                                <select class="form-select" id="modifyUserState">
-                                    <option value="">No change</option>
-                                    <option value="ACTIVATED">Activated</option>
-                                    <option value="DEACTIVATED">Deactivated</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update User</button>
-                </form>
             </div>
         </div>
         
@@ -462,68 +464,145 @@
         <div id="modify-profile" class="page">
             <h2>Modify User Profile</h2>
             <div class="card mb-4">
-                <div class="card-header">Lookup Profile</div>
+                <div class="card-header">Update Profile Details</div>
                 <div class="card-body">
-                    <form id="lookup-profile-form">
+                    <form id="modify-profile-form">
                         <div class="mb-3">
-                            <label for="lookupProfileId" class="form-label">Profile ID</label>
+                            <label for="modifyProfileId" class="form-label">Profile ID*</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="lookupProfileId" required placeholder="UUID format">
-                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="lookupProfileId">Generate UUID</button>
+                                <input type="text" class="form-control" id="modifyProfileId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="modifyProfileId">Generate UUID</button>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Find Profile</button>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="modifyDisplayName" class="form-label">Display Name</label>
+                                    <input type="text" class="form-control" id="modifyDisplayName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyAvatarUrl" class="form-label">Avatar URL</label>
+                                    <input type="url" class="form-control" id="modifyAvatarUrl">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyBiography" class="form-label">Biography</label>
+                                    <textarea class="form-control" id="modifyBiography" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="modifyJobTitle" class="form-label">Job Title</label>
+                                    <input type="text" class="form-control" id="modifyJobTitle">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyDepartment" class="form-label">Department</label>
+                                    <input type="text" class="form-control" id="modifyDepartment">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyLocation" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="modifyLocation">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyLinkedInUrl" class="form-label">LinkedIn URL</label>
+                                    <input type="url" class="form-control" id="modifyLinkedInUrl">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyTwitterUrl" class="form-label">Twitter URL</label>
+                                    <input type="url" class="form-control" id="modifyTwitterUrl">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modifyGitHubUrl" class="form-label">GitHub URL</label>
+                                    <input type="url" class="form-control" id="modifyGitHubUrl">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
                     </form>
                 </div>
             </div>
-            <div id="modify-profile-form-container" class="d-none">
-                <h3>Update Profile Details</h3>
-                <form id="modify-profile-form">
-                    <input type="hidden" id="modifyProfileId">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="modifyDisplayName" class="form-label">Display Name</label>
-                                <input type="text" class="form-control" id="modifyDisplayName">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyAvatarUrl" class="form-label">Avatar URL</label>
-                                <input type="url" class="form-control" id="modifyAvatarUrl">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyBiography" class="form-label">Biography</label>
-                                <textarea class="form-control" id="modifyBiography" rows="3"></textarea>
+        </div>
+        <!-- Create Tenant-User Association Page -->
+        <div id="create-tenant-user" class="page">
+            <h2>Create Tenant-User Association</h2>
+            <div class="card mb-4">
+                <div class="card-header">New Association Details</div>
+                <div class="card-body">
+                    <form id="create-tenant-user-form">
+                        <div class="mb-3">
+                            <label for="tuTenantId" class="form-label">Tenant ID*</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="tuTenantId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="tuTenantId">Generate UUID</button>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="modifyJobTitle" class="form-label">Job Title</label>
-                                <input type="text" class="form-control" id="modifyJobTitle">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyDepartment" class="form-label">Department</label>
-                                <input type="text" class="form-control" id="modifyDepartment">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyLocation" class="form-label">Location</label>
-                                <input type="text" class="form-control" id="modifyLocation">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyLinkedInUrl" class="form-label">LinkedIn URL</label>
-                                <input type="url" class="form-control" id="modifyLinkedInUrl">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyTwitterUrl" class="form-label">Twitter URL</label>
-                                <input type="url" class="form-control" id="modifyTwitterUrl">
-                            </div>
-                            <div class="mb-3">
-                                <label for="modifyGitHubUrl" class="form-label">GitHub URL</label>
-                                <input type="url" class="form-control" id="modifyGitHubUrl">
+                        <div class="mb-3">
+                            <label for="tuUserId" class="form-label">User ID*</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="tuUserId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="tuUserId">Generate UUID</button>
                             </div>
                         </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Profile</button>
-                </form>
+                        <div class="mb-3">
+                            <label class="form-label">User Roles*</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="TENANT_ADMIN" id="roleTenantAdmin">
+                                <label class="form-check-label" for="roleTenantAdmin">Tenant Admin</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="TENANT_MANAGER" id="roleTenantManager">
+                                <label class="form-check-label" for="roleTenantManager">Tenant Manager</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="TENANT_USER" id="roleTenantUser" checked>
+                                <label class="form-check-label" for="roleTenantUser">Tenant User</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="SYSTEM_ADMIN" id="roleSystemAdmin">
+                                <label class="form-check-label" for="roleSystemAdmin">System Admin</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Association</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modify Tenant-User Association Page -->
+        <div id="modify-tenant-user" class="page">
+            <h2>Modify Tenant-User Association</h2>
+            <div class="card mb-4">
+                <div class="card-header">Update Association Details</div>
+                <div class="card-body">
+                    <form id="modify-tenant-user-form">
+                        <div class="mb-3">
+                            <label for="modifyTenantUserId" class="form-label">Association ID*</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="modifyTenantUserId" required placeholder="UUID format">
+                                <button class="btn btn-outline-secondary generate-uuid" type="button" data-target="modifyTenantUserId">Generate UUID</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">User Roles</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="TENANT_ADMIN" id="modifyRoleTenantAdmin">
+                                <label class="form-check-label" for="modifyRoleTenantAdmin">Tenant Admin</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="TENANT_MANAGER" id="modifyRoleTenantManager">
+                                <label class="form-check-label" for="modifyRoleTenantManager">Tenant Manager</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="TENANT_USER" id="modifyRoleTenantUser">
+                                <label class="form-check-label" for="modifyRoleTenantUser">Tenant User</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="SYSTEM_ADMIN" id="modifyRoleSystemAdmin">
+                                <label class="form-check-label" for="modifyRoleSystemAdmin">System Admin</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Association</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
