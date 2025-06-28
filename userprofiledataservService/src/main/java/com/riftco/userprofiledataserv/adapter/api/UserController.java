@@ -3,6 +3,7 @@ package com.riftco.userprofiledataserv.adapter.api;
 import com.riftco.userprofiledataserv.adapter.api.dto.request.CreateUserRequest;
 import com.riftco.userprofiledataserv.adapter.api.dto.request.ModifyUserRequest;
 import com.riftco.userprofiledataserv.adapter.api.dto.response.UserResponse;
+import com.riftco.userprofiledataserv.adapter.api.util.RequestProcessor;
 import com.riftco.userprofiledataserv.application.port.in.CreateUserUseCase;
 import com.riftco.userprofiledataserv.application.port.in.ModifyUserUseCase;
 
@@ -70,32 +71,8 @@ public class UserController {
         
         log.info("Updating user with ID: {}", id);
         
-        // Check which fields are present and call appropriate use cases
-        if (request.getName() != null) {
-            modifyUserUseCase.changeName(new ChangeNameCommand(id, request.getName()));
-        }
-        
-        if (request.getEmail() != null) {
-            modifyUserUseCase.changeEmail(new ChangeEmailCommand(id, request.getEmail()));
-        }
-        
-        if (request.getContactNumber() != null) {
-            modifyUserUseCase.changePhoneNumber(
-                    new ChangePhoneNumberCommand(id, request.getContactNumber()));
-        }
-        
-        if (request.getState() != null) {
-            switch (request.getState()) {
-                case ACTIVATED:
-                    modifyUserUseCase.changeState(ChangeStateCommand.activate(id));
-                    break;
-                case DEACTIVATED:
-                    modifyUserUseCase.changeState(ChangeStateCommand.deactivate(id));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported state: " + request.getState());
-            }
-        }
+        // Process all fields in the request using reflection
+        RequestProcessor.processUserUpdateRequest(request, modifyUserUseCase, id);
         
         // In a real implementation, you would fetch the updated user and return its details
         // This is simplified for this example

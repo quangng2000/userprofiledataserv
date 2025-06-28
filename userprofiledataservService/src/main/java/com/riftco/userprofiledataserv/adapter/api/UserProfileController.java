@@ -3,6 +3,7 @@ package com.riftco.userprofiledataserv.adapter.api;
 import com.riftco.userprofiledataserv.adapter.api.dto.request.CreateUserProfileRequest;
 import com.riftco.userprofiledataserv.adapter.api.dto.request.ModifyUserProfileRequest;
 import com.riftco.userprofiledataserv.adapter.api.dto.response.UserProfileResponse;
+import com.riftco.userprofiledataserv.adapter.api.util.RequestProcessor;
 import com.riftco.userprofiledataserv.application.port.in.CreateUserProfileUseCase;
 import com.riftco.userprofiledataserv.application.port.in.ModifyUserProfileUseCase;
 import lombok.RequiredArgsConstructor;
@@ -77,38 +78,8 @@ public class UserProfileController {
         
         log.info("Updating profile with ID: {}", id);
         
-        // Check which fields are present and call appropriate use cases
-        if (request.getDisplayName() != null) {
-            modifyUserProfileUseCase.changeDisplayName(
-                    new ChangeDisplayNameCommand(id, request.getDisplayName()));
-        }
-        
-        if (request.getAvatarUrl() != null) {
-            modifyUserProfileUseCase.changeAvatar(
-                    new ChangeAvatarCommand(id, request.getAvatarUrl()));
-        }
-        
-        if (request.getBiography() != null) {
-            modifyUserProfileUseCase.changeBiography(
-                    new ChangeBiographyCommand(id, request.getBiography()));
-        }
-        
-        // Handle job title and department together if either is provided
-        if (request.getJobTitle() != null || request.getDepartment() != null) {
-            modifyUserProfileUseCase.changeJobInfo(
-                    new ChangeJobInfoCommand(id, request.getJobTitle(), request.getDepartment()));
-        }
-        
-        if (request.getLocation() != null) {
-            modifyUserProfileUseCase.changeLocation(
-                    new ChangeLocationCommand(id, request.getLocation()));
-        }
-        
-        // Handle all social media URLs together if any is provided
-        if (request.getLinkedInUrl() != null || request.getTwitterUrl() != null || request.getGitHubUrl() != null) {
-            modifyUserProfileUseCase.changeSocialLinks(
-                    new ChangeSocialLinksCommand(id, request.getLinkedInUrl(), request.getTwitterUrl(), request.getGitHubUrl()));
-        }
+        // Use reflection-based processing to handle all fields
+        RequestProcessor.processUserProfileUpdateRequest(request, modifyUserProfileUseCase, id);
         
         // In a real implementation, you would fetch the updated profile and return its details
         return ResponseEntity.ok(UserProfileResponse.builder().id(id).build());
