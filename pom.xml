@@ -13,9 +13,9 @@
     <description>Multi-module project for User Profile and Identity API and Service</description>
 
     <modules>
-        <module>userprofiledataservAPI</module>
+
         <module>userprofiledataservService</module>
-        <module>userprofiledataservFunctionalTest</module>
+
     </modules>
 
     <properties>
@@ -91,12 +91,8 @@
                         <release>${java.version}</release>
                     </configuration>
                 </plugin>
-                
-                <plugin>
-                    <groupId>org.openapitools</groupId>
-                    <artifactId>openapi-generator-maven-plugin</artifactId>
-                    <version>${openapi-generator.version}</version>
-                </plugin>
+
+
                 
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
