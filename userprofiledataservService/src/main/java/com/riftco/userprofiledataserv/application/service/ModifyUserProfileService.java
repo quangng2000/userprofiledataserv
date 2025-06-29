@@ -33,7 +33,7 @@ public class ModifyUserProfileService implements ModifyUserProfileUseCase {
         log.debug("Changing display name for profile: {}", command.getProfileId());
         
         UserProfile profile = this.findUserProfilePort.find(command.getProfileId());
-        profile.changeDisplayName(DisplayName.of(command.getDisplayName()));
+        profile.changeDisplayName(profile.getUUID(), DisplayName.of(command.getDisplayName()));
         
         this.sourceUserProfilePort.source(profile);
         
@@ -51,7 +51,7 @@ public class ModifyUserProfileService implements ModifyUserProfileUseCase {
         log.debug("Changing avatar for profile: {}", command.getProfileId());
         
         UserProfile profile = this.findUserProfilePort.find(command.getProfileId());
-        profile.changeAvatar(command.getAvatarUrl() != null ? 
+        profile.changeAvatar(profile.getUUID(), command.getAvatarUrl() != null ?
                 AvatarUrl.of(command.getAvatarUrl()) : null);
         
         this.sourceUserProfilePort.source(profile);
@@ -95,7 +95,7 @@ public class ModifyUserProfileService implements ModifyUserProfileUseCase {
         Department department = command.getDepartment() != null ?
                 Department.of(command.getDepartment()) : null;
         
-        profile.changeJobInfo(jobTitle, department);
+        profile.changeJobInfo(profile.getUUID(), jobTitle, department);
         
         this.sourceUserProfilePort.source(profile);
         
@@ -117,7 +117,7 @@ public class ModifyUserProfileService implements ModifyUserProfileUseCase {
         Location location = command.getLocation() != null ?
                 Location.of(command.getLocation()) : null;
         
-        profile.changeLocation(location);
+        profile.changeLocation(profile.getUUID(), location);
         
         this.sourceUserProfilePort.source(profile);
         

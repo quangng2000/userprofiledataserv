@@ -74,30 +74,32 @@ public final class UserProfile extends AggregateRoot {
     
     /**
      * Updates the user profile's display name if it differs from the current one.
-     * 
+     *
+     * @param uuid
      * @param displayName The new display name
      * @return Updated UserProfile instance
      * @throws IllegalStateException if the new display name is the same as the current one
      */
-    public UserProfile changeDisplayName(DisplayName displayName) {
+    public UserProfile changeDisplayName(UUID uuid, DisplayName displayName) {
         if (displayName.equals(this.displayName)) {
             throw new IllegalStateException("New display name must differ from current display name");
         }
-        return this.applyEvent(new UserProfileDisplayNameChangedEvent(getUUID(), displayName, Instant.now()));
+        return this.applyEvent(new UserProfileDisplayNameChangedEvent(uuid, displayName, Instant.now()));
     }
     
     /**
      * Updates the user profile's avatar URL if it differs from the current one.
-     * 
+     *
+     * @param uuid
      * @param avatarUrl The new avatar URL
      * @return Updated UserProfile instance
      * @throws IllegalStateException if the new avatar URL is the same as the current one
      */
-    public UserProfile changeAvatar(AvatarUrl avatarUrl) {
+    public UserProfile changeAvatar(UUID uuid, AvatarUrl avatarUrl) {
         if (avatarUrl.equals(this.avatarUrl)) {
             throw new IllegalStateException("New avatar URL must differ from current avatar URL");
         }
-        return this.applyEvent(new UserProfileAvatarChangedEvent(getUUID(), avatarUrl, Instant.now()));
+        return this.applyEvent(new UserProfileAvatarChangedEvent(uuid, avatarUrl, Instant.now()));
     }
     
     /**
@@ -116,31 +118,33 @@ public final class UserProfile extends AggregateRoot {
     
     /**
      * Updates the user profile's job information if it differs from the current one.
-     * 
-     * @param jobTitle The new job title
+     *
+     * @param uuid
+     * @param jobTitle   The new job title
      * @param department The new department
      * @return Updated UserProfile instance
      * @throws IllegalStateException if both the new job title and department are the same as the current ones
      */
-    public UserProfile changeJobInfo(JobTitle jobTitle, Department department) {
+    public UserProfile changeJobInfo(UUID uuid, JobTitle jobTitle, Department department) {
         if (jobTitle.equals(this.jobTitle) && department.equals(this.department)) {
             throw new IllegalStateException("At least one job info field must differ from current values");
         }
-        return this.applyEvent(new UserProfileJobInfoChangedEvent(getUUID(), jobTitle, department, Instant.now()));
+        return this.applyEvent(new UserProfileJobInfoChangedEvent(uuid, jobTitle, department, Instant.now()));
     }
     
     /**
      * Updates the user profile's location if it differs from the current one.
-     * 
+     *
+     * @param uuid
      * @param location The new location
      * @return Updated UserProfile instance
      * @throws IllegalStateException if the new location is the same as the current one
      */
-    public UserProfile changeLocation(Location location) {
+    public UserProfile changeLocation(UUID uuid, Location location) {
         if (location.equals(this.location)) {
             throw new IllegalStateException("New location must differ from current location");
         }
-        return this.applyEvent(new UserProfileLocationChangedEvent(getUUID(), location, Instant.now()));
+        return this.applyEvent(new UserProfileLocationChangedEvent(uuid, location, Instant.now()));
     }
     
     public UserProfile updateSocialLinks(LinkedInUrl linkedInUrl, TwitterUrl twitterUrl, GitHubUrl githubUrl) {
