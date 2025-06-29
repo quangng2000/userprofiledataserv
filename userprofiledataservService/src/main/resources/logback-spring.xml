@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Properties -->
+    <property name="LOGS" value="./logs" />
+    <property name="SERVICE_NAME" value="userprofiledataserv" />
+
+    <!-- Simple Console Appender -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36}: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Rolling File Appender for plain text logs -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/${SERVICE_NAME}.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{ISO8601} %-5level [%X{traceId}/%X{spanId}] [%thread] %logger{36}: %msg%n%throwable</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/${SERVICE_NAME}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- JSON Appender for structured logging (ELK compatible) -->
+    <appender name="JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/${SERVICE_NAME}-json.log</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdc>true</includeMdc>
+            <customFields>{"service_name":"${SERVICE_NAME}"}</customFields>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/${SERVICE_NAME}-json-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Async appenders for better performance -->
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="JSON" />
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="RollingFile" />
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- Logger levels -->
+    <root level="INFO">
+        <appender-ref ref="Console" />
+        <appender-ref ref="ASYNC_FILE" />
+        <appender-ref ref="ASYNC_JSON" />
+    </root>
+
+    <!-- Application specific loggers -->
+    <logger name="com.riftco.userprofiledataserv" level="DEBUG" additivity="false">
+        <appender-ref ref="Console" />
+        <appender-ref ref="ASYNC_FILE" />
+        <appender-ref ref="ASYNC_JSON" />
+    </logger>
+
+    <!-- Set MongoDB driver logs to WARNING to reduce noise -->
+    <logger name="org.mongodb.driver" level="WARN" />
+    
+    <!-- Framework loggers -->
+    <logger name="org.springframework" level="INFO" />
+    <logger name="org.springframework.data" level="INFO" />
+    <logger name="org.apache.kafka" level="WARN" />
+    <logger name="org.springframework.kafka" level="INFO" />
+    <logger name="org.springframework.web" level="INFO" />
+    
+    <!-- SQL logging if needed -->
+    <logger name="org.hibernate.SQL" level="INFO" />
+</configuration>
